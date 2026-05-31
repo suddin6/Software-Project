@@ -1,59 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
+<?import javafx.scene.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="427.0" prefWidth="679.0" style="-fx-background-color: #0E1525;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.votingveranda.CampaignController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
-   <children>
-      <Button fx:id="profileBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="589.0" layoutY="7.0" mnemonicParsing="false" onAction="#goToProfile" prefHeight="11.0" prefWidth="36.0" style="-fx-background-radius: 30; -fx-background-color: #dfc07d; -fx-border-radius: 30; -fx-border-color: black;" text="👤" AnchorPane.rightAnchor="0.0">
-         <font>
-            <Font size="14.0" />
-         </font></Button>
-      <Label fx:id="campaignTitle" alignment="CENTER" layoutX="172.0" layoutY="10.0" prefHeight="57.0" prefWidth="335.0" text="Candidate Name" textFill="#dfc07d">
-         <font>
-            <Font name="Bell MT Bold" size="35.0" />
-         </font>
-      </Label>
-      <AreaChart fx:id="candidateStandings" alternativeColumnFillVisible="true" layoutX="79.0" layoutY="246.0" prefHeight="181.0" prefWidth="521.0" style="-fx-background-color: #114945; -fx-background-radius: 15;" title=" ">
-        <xAxis>
-          <CategoryAxis side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" tickLabelFill="#dfc07d">
-               <tickLabelFont>
-                  <Font name="Arial Rounded MT Bold" size="8.0" />
-               </tickLabelFont></NumberAxis>
-        </yAxis>
-      </AreaChart>
-      <Label fx:id="standingsTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="229.0" layoutY="254.0" prefHeight="17.0" prefWidth="221.0" text="Standings" textFill="#dfc07d">
-         <font>
-            <Font name="Bell MT" size="18.0" />
-         </font>
-      </Label>
-      <Pane fx:id="campaignBox" layoutX="54.0" layoutY="83.0" prefHeight="143.0" prefWidth="571.0" style="-fx-background-color: #293146; -fx-background-radius: 15; -fx-padding: 15;">
+
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.votingveranda.CampaignController">
+   <content>
+      <AnchorPane prefHeight="900.0" prefWidth="1072.0" style="-fx-background-color: #0E1525;">
+          <padding>
+              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+          </padding>
          <children>
-            <Label contentDisplay="CENTER" prefHeight="17.0" prefWidth="571.0" style="-fx-background-radius: 15; -fx-padding: 15; -fx-background-color: #dfc07d;" text="Campaign Information:" textFill="#1a1e29">
+            <Button fx:id="profileBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="1030.0" layoutY="23.0" mnemonicParsing="false" onAction="#goToProfile" prefHeight="11.0" prefWidth="36.0" style="-fx-background-radius: 30; -fx-background-color: #dfc07d; -fx-border-radius: 30; -fx-border-color: black;" text="👤" AnchorPane.rightAnchor="40.333333333333485" AnchorPane.topAnchor="23.0">
                <font>
-                  <Font name="Arial Rounded MT Bold" size="15.0" />
+                  <Font size="14.0" />
                </font>
-            </Label>
-            <Button fx:id="editCampaign" layoutX="520.0" layoutY="4.0" mnemonicParsing="false" onAction="#makeChanges" prefHeight="39.0" prefWidth="51.0" style="-fx-background-color: transparent;" text="✎" textFill="#222736">
-               <font>
-                  <Font size="18.0" />
-               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
             </Button>
-            <Label fx:id="campaignText" alignment="TOP_LEFT" layoutY="48.0" prefWidth="571.0" style="-fx-padding: 15;" text="Label" textFill="WHITE" wrapText="true">
+            <Label fx:id="campaignTitle" alignment="CENTER" layoutX="409.0" layoutY="53.0" text="Candidate Name" textFill="#549892" AnchorPane.topAnchor="53.0">
                <font>
-                  <Font name="Baskerville Old Face" size="14.0" />
+                  <Font name="Bell MT Bold" size="35.0" />
                </font>
             </Label>
+            <AreaChart fx:id="candidateStandings" alternativeColumnFillVisible="true" layoutX="53.0" layoutY="479.0" prefHeight="400.0" prefWidth="1001.0" style="-fx-background-color: #114945; -fx-background-radius: 15;" title=" " AnchorPane.bottomAnchor="41.0" AnchorPane.leftAnchor="53.0" AnchorPane.rightAnchor="53.000000000000114" AnchorPane.topAnchor="479.0">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" tickLabelFill="#dfc07d">
+                     <tickLabelFont>
+                        <Font name="Arial Rounded MT Bold" size="8.0" />
+                     </tickLabelFont>
+                  </NumberAxis>
+              </yAxis>
+            </AreaChart>
+            <Label fx:id="standingsTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="566.0" layoutY="499.0" prefHeight="30.0" prefWidth="254.0" text="Current Standings" textFill="#dfc07d">
+               <font>
+                  <Font name="Bell MT" size="24.0" />
+               </font>
+            </Label>
+            <Pane fx:id="campaignBox" layoutX="135.0" layoutY="163.0" prefHeight="300.0" prefWidth="878.0" style="-fx-background-color: #293146; -fx-background-radius: 15; -fx-padding: 15;" AnchorPane.bottomAnchor="497.0" AnchorPane.leftAnchor="135.0" AnchorPane.rightAnchor="134.33333333333348" AnchorPane.topAnchor="163.0">
+               <children>
+                  <Label contentDisplay="CENTER" prefHeight="48.0" prefWidth="843.0" style="-fx-background-radius: 15; -fx-padding: 15; -fx-background-color: #dfc07d;" text="Campaign Information:" textFill="#1a1e29">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="15.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="editCampaign" layoutX="784.0" layoutY="5.0" mnemonicParsing="false" onAction="#makeChanges" prefHeight="39.0" prefWidth="51.0" style="-fx-background-color: transparent;" text="✎" textFill="#222736">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+                  <Label fx:id="campaignText" alignment="TOP_LEFT" layoutX="7.0" layoutY="57.0" prefHeight="209.0" prefWidth="828.0" style="-fx-padding: 15;" text="Label" textFill="WHITE" wrapText="true">
+                     <font>
+                        <Font name="Baskerville Old Face" size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </Pane>
          </children>
-      </Pane>
-   </children>
-</AnchorPane>
+      </AnchorPane>
+   </content>
+</ScrollPane>
