@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="427.0" prefWidth="679.0" style="-fx-background-color: #0E1525;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.votingveranda.CampaignController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+   <children>
+      <Button fx:id="profileBtn" alignment="CENTER" contentDisplay="CENTER" layoutX="589.0" layoutY="7.0" mnemonicParsing="false" onAction="#goToProfile" prefHeight="11.0" prefWidth="36.0" style="-fx-background-radius: 30; -fx-background-color: #dfc07d; -fx-border-radius: 30; -fx-border-color: black;" text="👤" AnchorPane.rightAnchor="0.0">
+         <font>
+            <Font size="14.0" />
+         </font></Button>
+      <Label fx:id="campaignTitle" alignment="CENTER" layoutX="172.0" layoutY="10.0" prefHeight="57.0" prefWidth="335.0" text="Candidate Name" textFill="#dfc07d">
+         <font>
+            <Font name="Bell MT Bold" size="35.0" />
+         </font>
+      </Label>
+      <AreaChart fx:id="candidateStandings" alternativeColumnFillVisible="true" layoutX="79.0" layoutY="246.0" prefHeight="181.0" prefWidth="521.0" style="-fx-background-color: #114945; -fx-background-radius: 15;" title=" ">
+        <xAxis>
+          <CategoryAxis side="BOTTOM" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis side="LEFT" tickLabelFill="#dfc07d">
+               <tickLabelFont>
+                  <Font name="Arial Rounded MT Bold" size="8.0" />
+               </tickLabelFont></NumberAxis>
+        </yAxis>
+      </AreaChart>
+      <Label fx:id="standingsTitle" alignment="CENTER" contentDisplay="CENTER" layoutX="229.0" layoutY="254.0" prefHeight="17.0" prefWidth="221.0" text="Standings" textFill="#dfc07d">
+         <font>
+            <Font name="Bell MT" size="18.0" />
+         </font>
+      </Label>
+      <Pane fx:id="campaignBox" layoutX="54.0" layoutY="83.0" prefHeight="143.0" prefWidth="571.0" style="-fx-background-color: #293146; -fx-background-radius: 15; -fx-padding: 15;">
+         <children>
+            <Label contentDisplay="CENTER" prefHeight="17.0" prefWidth="571.0" style="-fx-background-radius: 15; -fx-padding: 15; -fx-background-color: #dfc07d;" text="Campaign Information:" textFill="#1a1e29">
+               <font>
+                  <Font name="Arial Rounded MT Bold" size="15.0" />
+               </font>
+            </Label>
+            <Button fx:id="editCampaign" layoutX="520.0" layoutY="4.0" mnemonicParsing="false" onAction="#makeChanges" prefHeight="39.0" prefWidth="51.0" style="-fx-background-color: transparent;" text="✎" textFill="#222736">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Button>
+            <Label fx:id="campaignText" alignment="TOP_LEFT" layoutY="48.0" prefWidth="571.0" style="-fx-padding: 15;" text="Label" textFill="WHITE" wrapText="true">
+               <font>
+                  <Font name="Baskerville Old Face" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>
