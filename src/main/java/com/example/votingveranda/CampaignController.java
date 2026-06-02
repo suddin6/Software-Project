@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
+import javax.swing.*;
+
 public class CampaignController {
     // information to connect to database using mySQL workbench
     private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
@@ -17,6 +19,7 @@ public class CampaignController {
     // fx:ids from .fxml file
     @FXML private Label campaignText;
     @FXML private Label candidateName;
+//    @FXML private JButton editCampaign;
 
     // database connection method
     private void db_connection() {
@@ -78,7 +81,56 @@ public class CampaignController {
     }
 
     @FXML
-    public void makeChanges(ActionEvent actionEvent) {
+    public void makeChanges(ActionEvent event) {
+        if (conn == null) {
+            return;
+        }
+
+        javafx.scene.control.Dialog<String> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Update Campaign");
+        dialog.setHeaderText("Update your campaign statement below:");
+
+        javafx.scene.control.ButtonType saveButtonType = new javafx.scene.control.ButtonType("Save", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, javafx.scene.control.ButtonType.CANCEL);
+
+        javafx.scene.control.TextArea ta = new javafx.scene.control.TextArea(campaignText.getText());
+        ta.setWrapText(true);
+        ta.setPrefHeight(400);
+        ta.setPrefWidth(600);
+
+        dialog.getDialogPane().setStyle("-fx-background-color: #f4f4f4; -fx-font-family: 'Arial Rounded MT Bold'");
+        ta.setStyle("-fx-control-inner-background: #ffffff; -fx-font-size: 14px");
+
+        dialog.getDialogPane().setContent(ta);
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                return ta.getText();
+            }
+            return null;
+        });
+
+        java.util.Optional<String> finish = dialog.showAndWait();
+
+        if (finish.isPresent()) {
+            String updatedCampaign = finish.get();
+
+            try {
+                String query = "UPDATE candidate SET campaign = ? WHERE candidate_id = ?";
+                java.sql.PreparedStatement ps = conn.prepareStatement(query);
+
+                ps.setString(1, updatedCampaign);
+                ps.setInt(2, currentUser);
+
+                int updatedRows = ps.executeUpdate();
+                if (updatedRows > 0) {
+                    campaignText.setText(updatedCampaign);
+                    System.out.println("successful update");
+                }
+            } catch (Exception e) {
+                System.out.println("sql error" + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
