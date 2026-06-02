@@ -2,7 +2,11 @@ package com.example.votingveranda;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
 
 import javax.swing.*;
 
@@ -19,6 +23,7 @@ public class CampaignController {
     // fx:ids from .fxml file
     @FXML private Label campaignText;
     @FXML private Label candidateName;
+    @FXML private AreaChart candidateStandings;
 //    @FXML private JButton editCampaign;
 
     // database connection method
@@ -42,7 +47,7 @@ public class CampaignController {
     public void initialize() {
         db_connection();
         loadCampaign(currentUser);
-        viewStandings(currentUser);
+        viewStandings();
     }
 
     // display the campaign on the candidate page
@@ -77,7 +82,102 @@ public class CampaignController {
         }
     }
 
-    private void viewStandings(int currentUser) {
+    private void viewStandings() {
+        candidateStandings.getData().clear();
+
+        if (candidateStandings.getXAxis() instanceof CategoryAxis) {
+            ((CategoryAxis) candidateStandings.getXAxis()).setGapStartAndEnd(false);
+        }
+
+        XYChart.Series<String, Number> demSeries = new XYChart.Series<>();
+        demSeries.setName("Democratic Party");
+        demSeries.getData().add(new XYChart.Data<>("May 15",300));
+        demSeries.getData().add(new XYChart.Data<>("May 20",230));
+        demSeries.getData().add(new XYChart.Data<>("May 25",428));
+        demSeries.getData().add(new XYChart.Data<>("May 30",133));
+        demSeries.getData().add(new XYChart.Data<>("June 5",510));
+        demSeries.getData().add(new XYChart.Data<>("June 10",291));
+
+        XYChart.Series<String, Number> repSeries = new XYChart.Series<>();
+        repSeries.setName("Republican Party");
+        repSeries.getData().add(new XYChart.Data<>("May 15",529));
+        repSeries.getData().add(new XYChart.Data<>("May 20",102));
+        repSeries.getData().add(new XYChart.Data<>("May 25",342));
+        repSeries.getData().add(new XYChart.Data<>("May 30",343));
+        repSeries.getData().add(new XYChart.Data<>("June 5",104));
+        repSeries.getData().add(new XYChart.Data<>("June 10",221));
+
+        XYChart.Series<String, Number> greenSeries = new XYChart.Series<>();
+        greenSeries.setName("Green Party");
+        greenSeries.getData().add(new XYChart.Data<>("May 15",100));
+        greenSeries.getData().add(new XYChart.Data<>("May 20",250));
+        greenSeries.getData().add(new XYChart.Data<>("May 25",242));
+        greenSeries.getData().add(new XYChart.Data<>("May 30",133));
+        greenSeries.getData().add(new XYChart.Data<>("June 5",120));
+        greenSeries.getData().add(new XYChart.Data<>("June 10",191));
+
+        candidateStandings.getData().addAll(demSeries, repSeries, greenSeries);
+
+        candidateStandings.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        candidateStandings.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        candidateStandings.setMinHeight(250);
+
+        candidateStandings.setStyle(
+                "-fx-background-color: transparent; "
+                + "-fx-font-size: 13px; "
+                + "-fx-text-fill: #dfc07d; "
+                + "-fx-text-background-color: #dfc07d;"
+                + "-fx-series0: #1a73e8; "
+                + "-fx-series1: #ea4335; "
+                + "-fx-series2: #34a853;"
+        );
+
+        demSeries.getNode().lookup(".chart-series-area-line").setStyle("-fx-stroke: #1a73e8;");
+        demSeries.getNode().lookup(".chart-series-area-fill").setStyle("-fx-fill: rgba(26, 115, 232, 0.15);");
+
+        repSeries.getNode().lookup(".chart-series-area-line").setStyle("-fx-stroke: #ea4335;");
+        repSeries.getNode().lookup(".chart-series-area-fill").setStyle("-fx-fill: rgba(234, 67, 53, 0.15);");
+
+        greenSeries.getNode().lookup(".chart-series-area-line").setStyle("-fx-stroke: #34a853;");
+        greenSeries.getNode().lookup(".chart-series-area-fill").setStyle("-fx-fill: rgba(52, 168, 83, 0.15);");
+
+        for (XYChart.Data<String, Number> data : demSeries.getData()) {
+            if (data.getNode() != null) data.getNode().lookup(".chart-area-symbol").setStyle("-fx-background-color: #1a73e8, white;");
+        }
+
+        for (XYChart.Data<String, Number> data : repSeries.getData()) {
+            if (data.getNode() != null) data.getNode().lookup(".chart-area-symbol").setStyle("-fx-background-color: #ea4335, white;");
+        }
+
+        for (XYChart.Data<String, Number> data : greenSeries.getData()) {
+            if (data.getNode() != null) data.getNode().lookup(".chart-area-symbol").setStyle("-fx-background-color: #34a853, white;");
+        }
+
+        javafx.scene.Node legend = candidateStandings.lookup(".chart-legend");
+        if (legend != null) {
+            legend.setStyle("-fx-alignment: CENTER; -fx-background-color: transparent; -fx-hgap: 20px;");
+
+            for (javafx.scene.Node label : legend.lookupAll(".chart-legend-item-label")) {
+                label.setStyle("-fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-text-fill: #dfc07d;");
+
+                javafx.scene.Parent item = label.getParent();
+                if (item != null) {
+                    javafx.scene.Node symbol = item.lookup(".chart-legend-item-symbol");
+                    if (symbol != null) {
+                        if (((javafx.scene.control.Label) label).getText().contains("Democratic")) {
+                            symbol.setStyle("-fx-background-color: #1a73e8, white;");
+                        } else if (((javafx.scene.control.Label) label).getText().contains("Republican")) {
+                            symbol.setStyle("-fx-background-color: #ea4335, white;");
+                        } else if (((javafx.scene.control.Label) label).getText().contains("Green")) {
+                            symbol.setStyle("-fx-background-color: #34a853, white;");
+                        }
+                    }
+                }
+            }
+        }
+
+        candidateStandings.getXAxis().setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+        candidateStandings.getYAxis().setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
     }
 
     @FXML
