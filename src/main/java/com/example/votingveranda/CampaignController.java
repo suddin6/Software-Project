@@ -120,16 +120,16 @@ public class CampaignController {
 
         candidateStandings.setPrefHeight(Region.USE_COMPUTED_SIZE);
         candidateStandings.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        candidateStandings.setMinHeight(250);
+        candidateStandings.setMinHeight(275);
 
         candidateStandings.setStyle(
                 "-fx-background-color: transparent; "
                 + "-fx-font-size: 13px; "
                 + "-fx-text-fill: #dfc07d; "
                 + "-fx-text-background-color: #dfc07d;"
-                + "-fx-series0: #1a73e8; "
-                + "-fx-series1: #ea4335; "
-                + "-fx-series2: #34a853;"
+                + "CHART_COLOR_1: #1a73e8; "
+                + "CHART_COLOR_2: #ea4335; "
+                + "CHART_COLOR_3: #34a853;"
         );
 
         demSeries.getNode().lookup(".chart-series-area-line").setStyle("-fx-stroke: #1a73e8;");
@@ -154,25 +154,24 @@ public class CampaignController {
         }
 
         javafx.scene.Node legend = candidateStandings.lookup(".chart-legend");
-        if (legend != null) {
-            legend.setStyle("-fx-alignment: CENTER; -fx-background-color: transparent; -fx-hgap: 20px;");
+        if (legend instanceof javafx.scene.layout.Region) {
+            javafx.scene.layout.Region legReg = (javafx.scene.layout.Region) legend;
 
-            for (javafx.scene.Node label : legend.lookupAll(".chart-legend-item-label")) {
+            legReg.setPrefWidth(Region.USE_COMPUTED_SIZE);
+            legReg.setMinWidth(600);
+
+            legReg.setStyle("-fx-alignment: CENTER; "
+                    + "-fx-background-color: transparent; "
+                    + "-fx-hgap: 30px; "
+                    + "-fx-vgap: 0px; "
+                    + "-fx-font-family: 'Arial Rounded MT Bold'; "
+                    + "-fx-font-size: 14px; "
+                    + "-fx-text-fill: #dfc07d"
+            );
+
+            for (javafx.scene.Node label : legReg.lookupAll(".chart-legend-item-label")) {
                 label.setStyle("-fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-text-fill: #dfc07d;");
 
-                javafx.scene.Parent item = label.getParent();
-                if (item != null) {
-                    javafx.scene.Node symbol = item.lookup(".chart-legend-item-symbol");
-                    if (symbol != null) {
-                        if (((javafx.scene.control.Label) label).getText().contains("Democratic")) {
-                            symbol.setStyle("-fx-background-color: #1a73e8, white;");
-                        } else if (((javafx.scene.control.Label) label).getText().contains("Republican")) {
-                            symbol.setStyle("-fx-background-color: #ea4335, white;");
-                        } else if (((javafx.scene.control.Label) label).getText().contains("Green")) {
-                            symbol.setStyle("-fx-background-color: #34a853, white;");
-                        }
-                    }
-                }
             }
         }
 
