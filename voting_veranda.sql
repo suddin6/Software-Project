@@ -42,8 +42,8 @@ CREATE TABLE voter
 
 CREATE TABLE positions
 (
-	position_id			INT			AUTO_INCREMENT NOT NULL,
-    position_name		VARCHAR(50)	NOT NULL,
+	position_id			INT	 AUTO_INCREMENT NOT NULL,
+    position_name		VARCHAR(50)	UNIQUE NOT NULL,
     CONSTRAINT positions_pk
 		PRIMARY KEY (position_id)
 );
