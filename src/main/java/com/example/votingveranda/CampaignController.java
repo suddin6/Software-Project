@@ -9,8 +9,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 
-//import javax.swing.*;
-
 public class CampaignController {
     // information to connect to database using mySQL workbench
     private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
@@ -83,6 +81,7 @@ public class CampaignController {
         }
     }
 
+    // method to view standings of all candidates
     private void viewStandings() {
         candidateStandings.getData().clear();
 
@@ -133,6 +132,7 @@ public class CampaignController {
                 + "CHART_COLOR_3: #34a853;"
         );
 
+        // color coordinated UI: blue for democrat, red for republican, green for green party
         demSeries.getNode().lookup(".chart-series-area-line").setStyle("-fx-stroke: #1a73e8;");
         demSeries.getNode().lookup(".chart-series-area-fill").setStyle("-fx-fill: rgba(26, 115, 232, 0.15);");
 
@@ -180,12 +180,14 @@ public class CampaignController {
         candidateStandings.getYAxis().setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
     }
 
+    // method used for campaign changes
     @FXML
     public void makeChanges(ActionEvent event) {
         if (conn == null) {
             return;
         }
 
+        // Dialog pop-up window that allows user to edit their text
         javafx.scene.control.Dialog<String> dialog = new javafx.scene.control.Dialog<>();
         dialog.setTitle("Update Campaign");
         dialog.setHeaderText("Update your campaign statement below:");
@@ -214,10 +216,10 @@ public class CampaignController {
         if (finish.isPresent()) {
             String updatedCampaign = finish.get();
 
+            // update the screen and the database
             try {
                 String query = "UPDATE candidate SET campaign = ? WHERE candidate_id = " + currentUser;
                 java.sql.PreparedStatement ps = conn.prepareStatement(query);
-
                 ps.setString(1, updatedCampaign);
 
                 int updatedRows = ps.executeUpdate();
@@ -232,6 +234,7 @@ public class CampaignController {
         }
     }
 
+    // method to view candidate profile
     @FXML
     public void goToProfile(ActionEvent actionEvent) {
         String candName = "Unknown";
@@ -259,8 +262,11 @@ public class CampaignController {
             e.printStackTrace();
         }
 
+        // profile dialog pop-up window
         javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
         dialog.setTitle("Your Profile");
+
+        // hidden close button (only exit functionality through X on top of pop-up)
         dialog.getDialogPane().getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
         javafx.scene.Node closeBtn = dialog.getDialogPane().lookupButton(javafx.scene.control.ButtonType.CLOSE);
         if (closeBtn != null) {
@@ -279,6 +285,7 @@ public class CampaignController {
         final String currentParty = party;
         final String currentPosition = position;
 
+        // edit button actions
         editProfileBtn.setOnAction(e -> {
             javafx.scene.control.TextInputDialog partyDialog = new javafx.scene.control.TextInputDialog(currentParty);
             partyDialog.setTitle("Edit Party");
@@ -318,20 +325,22 @@ public class CampaignController {
             }
         });
 
+        // log out button actions
         logOutBtn.setOnAction(e -> {
             dialog.close();
             javafx.stage.Stage stage = (javafx.stage.Stage) candidateStandings.getScene().getWindow();
             stage.close();
         });
 
+        // UI for dialog, buttons, and text labels
         javafx.scene.layout.VBox profileLayout = new javafx.scene.layout.VBox(15);
         profileLayout.setPadding(new javafx.geometry.Insets(20));
         profileLayout.setPrefWidth(500);
         profileLayout.setPrefHeight(350);
         profileLayout.setAlignment(javafx.geometry.Pos.CENTER);
 
-        nameLabel.setStyle("-fx-text-fill: #549892; -fx-font-size: 26px; -fx-font-weight: bold;");
-        usernameLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 14px; -fx-font-style: italic; ");
+        nameLabel.setStyle("-fx-text-fill: #549892; -fx-font-size: 26px;");
+        usernameLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 14px;");
         partyLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 18px;");
         positionLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 18px;");
 
