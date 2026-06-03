@@ -5,10 +5,11 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 
-import javax.swing.*;
+//import javax.swing.*;
 
 public class CampaignController {
     // information to connect to database using mySQL workbench
@@ -214,11 +215,10 @@ public class CampaignController {
             String updatedCampaign = finish.get();
 
             try {
-                String query = "UPDATE candidate SET campaign = ? WHERE candidate_id = ?";
+                String query = "UPDATE candidate SET campaign = ? WHERE candidate_id = " + currentUser;
                 java.sql.PreparedStatement ps = conn.prepareStatement(query);
 
                 ps.setString(1, updatedCampaign);
-                ps.setInt(2, currentUser);
 
                 int updatedRows = ps.executeUpdate();
                 if (updatedRows > 0) {
@@ -234,5 +234,116 @@ public class CampaignController {
 
     @FXML
     public void goToProfile(ActionEvent actionEvent) {
+        String candName = "Unknown";
+        String candUsername = "Unknown";
+        String party = "Unknown";
+        String position = "Unknown";
+
+        try {
+            String query = "SELECT l.first_name, l.last_name, l.l_username, c.party, p.position_name FROM candidate c " +
+                            "INNER JOIN login l ON c.login_id = l.login_id " +
+                            "LEFT JOIN positions p ON c.position_id = p.position_id " +
+                            "WHERE c.candidate_id = " + currentUser;
+            java.sql.PreparedStatement ps = conn.prepareStatement(query);
+            java.sql.ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                candName = rs.getString("first_name") + " " + rs.getString("last_name");
+                candUsername = rs.getString("l_username");
+                String dbParty = rs.getString("party");
+                party = (dbParty != null) ? dbParty : "None";
+                String dbPosition = rs.getString("position_name");
+                position = (dbParty != null) ? dbPosition : "None";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Your Profile");
+        dialog.getDialogPane().getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
+        javafx.scene.Node closeBtn = dialog.getDialogPane().lookupButton(javafx.scene.control.ButtonType.CLOSE);
+        if (closeBtn != null) {
+            closeBtn.managedProperty().bind(closeBtn.visibleProperty());
+            closeBtn.setVisible(false);
+        }
+
+        Label nameLabel = new Label(candName);
+        Label usernameLabel = new Label(candUsername);
+        Label partyLabel = new Label(party);
+        Label positionLabel = new Label(position);
+
+        Button editProfileBtn = new Button("Edit Profile");
+        Button logOutBtn = new Button("Log Out");
+
+        final String currentParty = party;
+        final String currentPosition = position;
+
+        editProfileBtn.setOnAction(e -> {
+            javafx.scene.control.TextInputDialog partyDialog = new javafx.scene.control.TextInputDialog(currentParty);
+            partyDialog.setTitle("Edit Party");
+            partyDialog.setHeaderText("Enter New Party: ");
+            java.util.Optional<String> partyResult = partyDialog.showAndWait();
+
+            javafx.scene.control.TextInputDialog positionDialog = new javafx.scene.control.TextInputDialog(currentPosition);
+            positionDialog.setTitle("Edit Position");
+            positionDialog.setHeaderText("Enter New Position: ");
+            java.util.Optional<String> positionResult = positionDialog.showAndWait();
+
+            if (partyResult.isPresent() && positionResult.isPresent()) {
+                try {
+                    String insertQ2 = "INSERT IGNORE INTO positions (position_name) VALUES (?)";
+                    java.sql.PreparedStatement ps2 = conn.prepareStatement(insertQ2);
+                    ps2.setString(1, positionResult.get());
+                    ps2.executeUpdate();
+
+                    String query1 = "UPDATE candidate SET party = ? WHERE candidate_id = " + currentUser;
+                    java.sql.PreparedStatement profilePS1 = conn.prepareStatement(query1);
+                    profilePS1.setString(1, partyResult.get());
+                    int rows1 = profilePS1.executeUpdate();
+
+                    String query2 = "UPDATE candidate SET position_id = (SELECT position_id FROM positions WHERE LOWER(position_name) = LOWER(?) LIMIT 1) WHERE candidate_id = " + currentUser;
+                    java.sql.PreparedStatement profilePS2 = conn.prepareStatement(query2);
+                    profilePS2.setString(1, positionResult.get());
+                    int rows2 = profilePS2.executeUpdate();
+
+                    System.out.println("SQL Execute Rows Updated -> Party rows: " + rows1 + ", Position rows: " + rows2);
+                    System.out.println("Profile Updated Successfully!");
+                    dialog.close();
+                    javafx.application.Platform.runLater(() -> goToProfile(actionEvent));
+
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+            }
+        });
+
+        logOutBtn.setOnAction(e -> {
+            dialog.close();
+            javafx.stage.Stage stage = (javafx.stage.Stage) candidateStandings.getScene().getWindow();
+            stage.close();
+        });
+
+        javafx.scene.layout.VBox profileLayout = new javafx.scene.layout.VBox(15);
+        profileLayout.setPadding(new javafx.geometry.Insets(20));
+        profileLayout.setPrefWidth(500);
+        profileLayout.setPrefHeight(350);
+        profileLayout.setAlignment(javafx.geometry.Pos.CENTER);
+
+        nameLabel.setStyle("-fx-text-fill: #549892; -fx-font-size: 26px; -fx-font-weight: bold;");
+        usernameLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 14px; -fx-font-style: italic; ");
+        partyLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 18px;");
+        positionLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 18px;");
+
+        editProfileBtn.setStyle("-fx-background-color: #dfc07d; -fx-font-size: 18px; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-min-width: 180px; -fx-min-height: 35px; -fx-cursor: hand;");
+        logOutBtn.setStyle("-fx-background-color: #ea4335; -fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold; -fx-min-width: 180px; -fx-min-height: 35px; -fx-cursor: hand;");
+
+        javafx.scene.layout.VBox.setMargin(nameLabel, new javafx.geometry.Insets(0, 0, -5, 0));
+        javafx.scene.layout.VBox.setMargin(positionLabel, new javafx.geometry.Insets(0, 0, 15, 0));
+        profileLayout.getChildren().addAll(nameLabel, usernameLabel, partyLabel, positionLabel, editProfileBtn, logOutBtn);
+
+        dialog.getDialogPane().setContent(profileLayout);
+        dialog.getDialogPane().setStyle("-fx-background-color: #0E1525; -fx-font-family: 'Arial Rounded MT Bold';");
+        dialog.showAndWait();
     }
 }
