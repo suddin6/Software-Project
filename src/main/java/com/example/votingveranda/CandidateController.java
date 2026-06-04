@@ -9,7 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 
-public class CampaignController {
+public class CandidateController {
     // information to connect to database using mySQL workbench
     private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
     private final String DB_USER = "root";
