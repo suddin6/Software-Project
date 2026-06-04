@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="900.0" prefWidth="1072.0"
+            style="-fx-background-color: #0E1525;"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.votingveranda.AdminController">
+
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <children>
+
+        <!-- Page Title -->
+        <Label fx:id="adminTitle"
+               alignment="CENTER"
+               layoutX="0.0"
+               layoutY="20.0"
+               prefWidth="1072.0"
+               text="Admin Dashboard"
+               textFill="#549892"
+               AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0"
+               AnchorPane.topAnchor="20.0">
+            <font>
+                <Font name="Bell MT Bold" size="48.0" />
+            </font>
+        </Label>
+
+        <!-- Profile Button -->
+        <Button fx:id="profileBtn"
+                layoutX="985.0"
+                layoutY="25.0"
+                mnemonicParsing="false"
+                onAction="#viewAdminProfile"
+                prefHeight="61.0"
+                prefWidth="61.0"
+                style="-fx-background-radius: 30; -fx-background-color: #dfc07d; -fx-border-radius: 30; -fx-border-color: black;"
+                text="👤"
+                AnchorPane.rightAnchor="60.0"
+                AnchorPane.topAnchor="25.0">
+            <font>
+                <Font size="24.0" />
+            </font>
+            <cursor>
+                <Cursor fx:constant="HAND" />
+            </cursor>
+        </Button>
+
+        <!-- Main Container -->
+        <VBox alignment="TOP_CENTER"
+              layoutX="20.0"
+              layoutY="110.0"
+              spacing="25.0"
+              AnchorPane.bottomAnchor="30.0"
+              AnchorPane.leftAnchor="20.0"
+              AnchorPane.rightAnchor="20.0"
+              AnchorPane.topAnchor="110.0">
+
+            <children>
+
+                <!-- Button Bar -->
+                <HBox alignment="CENTER"
+                      spacing="18.0"
+                      prefHeight="80.0"
+                      prefWidth="1000.0"
+                      style="-fx-background-color: #293146; -fx-background-radius: 15; -fx-padding: 15;">
+
+                    <children>
+
+                        <Button fx:id="viewVotersBtn"
+                                mnemonicParsing="false"
+                                onAction="#viewVoters"
+                                prefHeight="45.0"
+                                prefWidth="160.0"
+                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 15px;"
+                                text="View Voters">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+
+                        <Button fx:id="viewCandidatesBtn"
+                                mnemonicParsing="false"
+                                onAction="#viewCandidates"
+                                prefHeight="45.0"
+                                prefWidth="170.0"
+                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 15px;"
+                                text="View Candidates">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+
+                        <Button fx:id="viewVoteCountsBtn"
+                                mnemonicParsing="false"
+                                onAction="#viewVoteCounts"
+                                prefHeight="45.0"
+                                prefWidth="170.0"
+                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 15px;"
+                                text="Vote Counts">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+
+                        <Button fx:id="refreshBtn"
+                                mnemonicParsing="false"
+                                onAction="#refreshDashboard"
+                                prefHeight="45.0"
+                                prefWidth="130.0"
+                                style="-fx-background-color: #549892; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"
+                                text="Refresh">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+
+                        <Button fx:id="logoutBtn"
+                                mnemonicParsing="false"
+                                onAction="#logout"
+                                prefHeight="45.0"
+                                prefWidth="120.0"
+                                style="-fx-background-color: #ea4335; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"
+                                text="Logout">
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
+
+                    </children>
+                </HBox>
+
+                <!-- Data Display Box -->
+                <AnchorPane prefHeight="610.0"
+                            prefWidth="1000.0"
+                            style="-fx-background-color: #293146; -fx-background-radius: 15;"
+                            VBox.vgrow="ALWAYS">
+
+                    <children>
+
+                        <Label alignment="CENTER_LEFT"
+                               prefHeight="50.0"
+                               prefWidth="1000.0"
+                               style="-fx-padding: 15; -fx-background-color: #dfc07d; -fx-background-radius: 15 15 0 0;"
+                               text="Admin Data Viewer"
+                               textFill="#1a1e29"
+                               AnchorPane.leftAnchor="0.0"
+                               AnchorPane.rightAnchor="0.0"
+                               AnchorPane.topAnchor="0.0">
+                            <font>
+                                <Font name="Arial Rounded MT Bold" size="18.0" />
+                            </font>
+                        </Label>
+
+                        <TextArea fx:id="adminOutput"
+                                  editable="false"
+                                  wrapText="true"
+                                  layoutX="20.0"
+                                  layoutY="70.0"
+                                  prefHeight="500.0"
+                                  prefWidth="960.0"
+                                  style="-fx-control-inner-background: #0E1525; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-family: 'Courier New'; -fx-background-radius: 12;"
+                                  text="Loading admin dashboard..."
+                                  AnchorPane.bottomAnchor="40.0"
+                                  AnchorPane.leftAnchor="20.0"
+                                  AnchorPane.rightAnchor="20.0"
+                                  AnchorPane.topAnchor="70.0" />
+
+                        <Label fx:id="statusLabel"
+                               alignment="CENTER_RIGHT"
+                               layoutX="700.0"
+                               layoutY="575.0"
+                               prefHeight="25.0"
+                               prefWidth="280.0"
+                               text="Status"
+                               textFill="#dfc07d"
+                               AnchorPane.bottomAnchor="10.0"
+                               AnchorPane.rightAnchor="25.0">
+                            <font>
+                                <Font name="Arial Rounded MT Bold" size="13.0" />
+                            </font>
+                        </Label>
+
+                    </children>
+                </AnchorPane>
+
+            </children>
+        </VBox>
+
+    </children>
+</AnchorPane>
