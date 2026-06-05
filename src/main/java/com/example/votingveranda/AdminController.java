@@ -19,7 +19,6 @@ public class AdminController {
 
     // fx:ids from .fxml file
     @FXML private Label adminName;
-    @FXML private Label statusLabel;
     @FXML private TextArea adminOutput;
     @FXML private Button viewVotersBtn;
     @FXML private Button viewCandidatesBtn;
@@ -36,13 +35,11 @@ public class AdminController {
             conn = java.sql.DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
             if (conn != null) {
                 System.out.println("Success");
-                statusLabel.setText("Database Connected");
             }
         } catch (java.sql.SQLException e) {
             System.out.println("Fail");
             System.out.println(e.getMessage());
             e.printStackTrace();
-            statusLabel.setText("Connection Failed");
             adminOutput.setText("Could not connect to the database.\n\nError: " + e.getMessage());
         }
     }
@@ -221,7 +218,6 @@ public class AdminController {
     @FXML
     public void refreshDashboard(ActionEvent event) {
         loadDashboard();
-        statusLabel.setText("Refreshed");
     }
 
     // method to view admin profile
