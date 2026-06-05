@@ -58,7 +58,7 @@
             <children>
 
                 <HBox alignment="CENTER"
-                      spacing="10.0"
+                      spacing="8.0"
                       prefHeight="75.0"
                       style="-fx-background-color: #293146; -fx-background-radius: 15; -fx-padding: 15;">
                     <children>
@@ -67,8 +67,8 @@
                                 mnemonicParsing="false"
                                 onAction="#viewVoters"
                                 prefHeight="45.0"
-                                prefWidth="160.0"
-                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 14px;"
+                                prefWidth="135.0"
+                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 13px;"
                                 text="View Voters">
                             <cursor><Cursor fx:constant="HAND" /></cursor>
                         </Button>
@@ -77,8 +77,8 @@
                                 mnemonicParsing="false"
                                 onAction="#viewCandidates"
                                 prefHeight="45.0"
-                                prefWidth="170.0"
-                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 14px;"
+                                prefWidth="150.0"
+                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 13px;"
                                 text="View Candidates">
                             <cursor><Cursor fx:constant="HAND" /></cursor>
                         </Button>
@@ -87,9 +87,29 @@
                                 mnemonicParsing="false"
                                 onAction="#viewVoteCounts"
                                 prefHeight="45.0"
-                                prefWidth="160.0"
-                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 14px;"
+                                prefWidth="120.0"
+                                style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 13px;"
                                 text="Vote Counts">
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                        </Button>
+
+                        <Button fx:id="editVoterBtn"
+                                mnemonicParsing="false"
+                                onAction="#editVoter"
+                                prefHeight="45.0"
+                                prefWidth="115.0"
+                                style="-fx-background-color: #549892; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"
+                                text="Edit Voter">
+                            <cursor><Cursor fx:constant="HAND" /></cursor>
+                        </Button>
+
+                        <Button fx:id="editCandidateBtn"
+                                mnemonicParsing="false"
+                                onAction="#editCandidate"
+                                prefHeight="45.0"
+                                prefWidth="135.0"
+                                style="-fx-background-color: #549892; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"
+                                text="Edit Candidate">
                             <cursor><Cursor fx:constant="HAND" /></cursor>
                         </Button>
 
@@ -97,8 +117,8 @@
                                 mnemonicParsing="false"
                                 onAction="#refreshDashboard"
                                 prefHeight="45.0"
-                                prefWidth="130.0"
-                                style="-fx-background-color: #549892; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"
+                                prefWidth="100.0"
+                                style="-fx-background-color: #549892; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"
                                 text="Refresh">
                             <cursor><Cursor fx:constant="HAND" /></cursor>
                         </Button>
@@ -107,8 +127,8 @@
                                 mnemonicParsing="false"
                                 onAction="#logout"
                                 prefHeight="45.0"
-                                prefWidth="120.0"
-                                style="-fx-background-color: #ea4335; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"
+                                prefWidth="100.0"
+                                style="-fx-background-color: #ea4335; -fx-background-radius: 12; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"
                                 text="Logout">
                             <cursor><Cursor fx:constant="HAND" /></cursor>
                         </Button>
