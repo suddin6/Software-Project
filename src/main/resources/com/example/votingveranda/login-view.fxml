@@ -2,42 +2,63 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.votingveranda.LoginController"
-            prefHeight="400.0"
-            prefWidth="600.0">
+            prefHeight="700.0" prefWidth="1000.0"
+            style="-fx-background-color: #0b1220;">
 
     <children>
+        <VBox alignment="CENTER" spacing="28"
+              AnchorPane.topAnchor="0.0"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0">
 
-        <Label layoutX="250.0"
-               layoutY="40.0"
-               text="Login" />
+            <Label text="Voting Veranda"
+                   style="-fx-text-fill: #5fa8a3; -fx-font-size: 52px; -fx-font-weight: bold;" />
 
-        <Label layoutX="120.0"
-               layoutY="120.0"
-               text="Username:" />
+            <VBox alignment="CENTER" spacing="18"
+                  maxWidth="430.0"
+                  style="-fx-background-color: #263248; -fx-background-radius: 18; -fx-padding: 35;">
 
-        <TextField fx:id="usernameField"
-                   layoutX="220.0"
-                   layoutY="115.0"
-                   prefWidth="200.0" />
+                <Label text="Login"
+                       style="-fx-text-fill: #5fa8a3; -fx-font-size: 34px; -fx-font-weight: bold;" />
 
-        <Label layoutX="120.0"
-               layoutY="180.0"
-               text="Password:" />
+                <Label text="Please enter your username and password"
+                       style="-fx-text-fill: white; -fx-font-size: 15px;" />
 
-        <PasswordField fx:id="passwordField"
-                       layoutX="220.0"
-                       layoutY="175.0"
-                       prefWidth="200.0" />
+                <VBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="Username"
+                           style="-fx-text-fill: white; -fx-font-weight: bold;" />
 
-        <Button fx:id="loginButton"
-                layoutX="260.0"
-                layoutY="260.0"
-                text="Login"
-                onAction="#handleLogin"/>
+                    <TextField fx:id="usernameField"
+                               promptText="Enter username"
+                               prefWidth="330.0"
+                               prefHeight="42.0"
+                               style="-fx-background-color: #0b1220; -fx-text-fill: white; -fx-prompt-text-fill: #b8b8b8; -fx-border-color: #e2c879; -fx-border-radius: 8; -fx-background-radius: 8;" />
+                </VBox>
 
+                <VBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="Password"
+                           style="-fx-text-fill: white; -fx-font-weight: bold;" />
+
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Enter password"
+                                   prefWidth="330.0"
+                                   prefHeight="42.0"
+                                   style="-fx-background-color: #0b1220; -fx-text-fill: white; -fx-prompt-text-fill: #b8b8b8; -fx-border-color: #e2c879; -fx-border-radius: 8; -fx-background-radius: 8;" />
+                </VBox>
+
+                <Button fx:id="loginButton"
+                        text="Login"
+                        onAction="#handleLogin"
+                        prefWidth="330.0"
+                        prefHeight="45.0"
+                        style="-fx-background-color: #5fa8a3; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 10;" />
+
+            </VBox>
+        </VBox>
     </children>
-
 </AnchorPane>
