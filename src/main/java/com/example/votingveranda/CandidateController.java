@@ -154,6 +154,7 @@ public class CandidateController {
             if (data.getNode() != null) data.getNode().lookup(".chart-area-symbol").setStyle("-fx-background-color: #34a853, white;");
         }
 
+        // UI for the legend of Standings char
         javafx.scene.Node legend = candidateStandings.lookup(".chart-legend");
         if (legend instanceof javafx.scene.layout.Region) {
             javafx.scene.layout.Region legReg = (javafx.scene.layout.Region) legend;
