@@ -20,7 +20,7 @@ public class LoginController {
 
     private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
     private final String DB_USER = "root";
-    private final String DB_PASS = "123toma456789!";
+    private final String DB_PASS = "root";
 
     @FXML
     public void handleLogin() {
@@ -45,7 +45,7 @@ public class LoginController {
                 if (userType == 3) {
                     switchPage("admin-view.fxml");
                 } else if (userType == 2) {
-                    switchPage("hello-view.fxml");
+                    switchPage("candidate-view.fxml");
                 } else {
                     showAlert("Voter Page", "Voter page is not connected yet.");
                 }
