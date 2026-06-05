@@ -348,11 +348,9 @@ public class AdminController {
             javafx.scene.control.TextField usernameField  = new javafx.scene.control.TextField(rs.getString("l_username"));
             javafx.scene.control.TextField partyField     = new javafx.scene.control.TextField(rs.getString("party"));
 
-            // null check — position_name can be null due to LEFT JOIN
             String posName = rs.getString("position_name");
             javafx.scene.control.TextField positionField = new javafx.scene.control.TextField(posName != null ? posName : "");
 
-            // null check — campaign can also be null
             String camp = rs.getString("campaign");
             javafx.scene.control.TextArea campaignArea = new javafx.scene.control.TextArea(camp != null ? camp : "");
             campaignArea.setWrapText(true);
@@ -417,12 +415,12 @@ public class AdminController {
         loadDashboard();
     }
 
-    // method to view admin profile
+    // method to view and edit admin profile
     @FXML
     public void goToProfile(ActionEvent actionEvent) {
         String adminFullName = "Unknown";
         String adminUsername = "Unknown";
-        String adminId = String.valueOf(currentUser);
+        String adminId       = String.valueOf(currentUser);
 
         try {
             String query = "SELECT l.first_name, l.last_name, l.l_username, a.admin_id " +
@@ -434,7 +432,7 @@ public class AdminController {
             if (rs.next()) {
                 adminFullName = rs.getString("first_name") + " " + rs.getString("last_name");
                 adminUsername = rs.getString("l_username");
-                adminId = String.valueOf(rs.getInt("admin_id"));
+                adminId       = String.valueOf(rs.getInt("admin_id"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -457,7 +455,52 @@ public class AdminController {
         javafx.scene.control.Label roleLabel     = new javafx.scene.control.Label("Role: System Administrator");
         javafx.scene.control.Label idLabel       = new javafx.scene.control.Label("Admin ID: " + adminId);
 
-        javafx.scene.control.Button logOutBtn = new javafx.scene.control.Button("Log Out");
+        javafx.scene.control.Button editProfileBtn = new javafx.scene.control.Button("Edit Profile");
+        javafx.scene.control.Button logOutBtn      = new javafx.scene.control.Button("Log Out");
+
+        final String currentName     = adminFullName;
+        final String currentUsername = adminUsername;
+
+        // edit profile button actions 
+        editProfileBtn.setOnAction(e -> {
+            javafx.scene.control.TextInputDialog firstNameDialog = new javafx.scene.control.TextInputDialog(currentName.split(" ")[0]);
+            firstNameDialog.setTitle("Edit First Name");
+            firstNameDialog.setHeaderText("Enter New First Name:");
+            java.util.Optional<String> firstNameResult = firstNameDialog.showAndWait();
+
+            javafx.scene.control.TextInputDialog lastNameDialog = new javafx.scene.control.TextInputDialog(currentName.contains(" ") ? currentName.split(" ", 2)[1] : "");
+            lastNameDialog.setTitle("Edit Last Name");
+            lastNameDialog.setHeaderText("Enter New Last Name:");
+            java.util.Optional<String> lastNameResult = lastNameDialog.showAndWait();
+
+            javafx.scene.control.TextInputDialog usernameDialog = new javafx.scene.control.TextInputDialog(currentUsername);
+            usernameDialog.setTitle("Edit Username");
+            usernameDialog.setHeaderText("Enter New Username:");
+            java.util.Optional<String> usernameResult = usernameDialog.showAndWait();
+
+            if (firstNameResult.isPresent() && lastNameResult.isPresent() && usernameResult.isPresent()) {
+                try {
+                    String updateQuery = "UPDATE login SET first_name = ?, last_name = ?, l_username = ? " +
+                                        "WHERE login_id = (SELECT login_id FROM admins WHERE admin_id = " + currentUser + ")";
+                    java.sql.PreparedStatement ps = conn.prepareStatement(updateQuery);
+                    ps.setString(1, firstNameResult.get());
+                    ps.setString(2, lastNameResult.get());
+                    ps.setString(3, usernameResult.get());
+                    int rows = ps.executeUpdate();
+
+                    System.out.println("Profile updated. Rows affected: " + rows);
+                    System.out.println("Profile Updated Successfully!");
+
+                    // refresh dashboard title and reopen profile
+                    loadDashboard();
+                    dialog.close();
+                    javafx.application.Platform.runLater(() -> goToProfile(actionEvent));
+
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+            }
+        });
 
         // log out button action
         logOutBtn.setOnAction(e -> {
@@ -470,19 +513,21 @@ public class AdminController {
         javafx.scene.layout.VBox profileLayout = new javafx.scene.layout.VBox(15);
         profileLayout.setPadding(new javafx.geometry.Insets(20));
         profileLayout.setPrefWidth(500);
-        profileLayout.setPrefHeight(330);
+        profileLayout.setPrefHeight(380);
         profileLayout.setAlignment(javafx.geometry.Pos.CENTER);
 
         nameLabel.setStyle("-fx-text-fill: #549892; -fx-font-size: 28px; -fx-font-weight: bold;");
         usernameLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 14px;");
         roleLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 18px;");
         idLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 18px;");
+        editProfileBtn.setStyle("-fx-background-color: #dfc07d; -fx-font-size: 18px; -fx-text-fill: #0E1525; " +
+                                "-fx-font-weight: bold; -fx-min-width: 180px; -fx-min-height: 35px; -fx-cursor: hand;");
         logOutBtn.setStyle("-fx-background-color: #ea4335; -fx-font-size: 18px; -fx-text-fill: white; " +
                            "-fx-font-weight: bold; -fx-min-width: 180px; -fx-min-height: 35px; -fx-cursor: hand;");
 
         javafx.scene.layout.VBox.setMargin(nameLabel, new javafx.geometry.Insets(0, 0, -5, 0));
         javafx.scene.layout.VBox.setMargin(idLabel, new javafx.geometry.Insets(0, 0, 15, 0));
-        profileLayout.getChildren().addAll(nameLabel, usernameLabel, roleLabel, idLabel, logOutBtn);
+        profileLayout.getChildren().addAll(nameLabel, usernameLabel, roleLabel, idLabel, editProfileBtn, logOutBtn);
 
         dialog.getDialogPane().setContent(profileLayout);
         dialog.getDialogPane().setStyle("-fx-background-color: #0E1525; -fx-font-family: 'Arial Rounded MT Bold';");
