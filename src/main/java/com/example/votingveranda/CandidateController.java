@@ -17,13 +17,19 @@ public class CandidateController {
     private java.sql.Connection conn = null;
 
     // hard-coded user to display on candidate page
-    private int currentUser = 1;
+    private int currentUser;
 
     // fx:ids from .fxml file
     @FXML private Label campaignText;
     @FXML private Label candidateName;
     @FXML private AreaChart candidateStandings;
-//    @FXML private JButton editCampaign;
+
+    public void setCurrentUser(int loginID) {
+        this.currentUser = loginID;
+
+        loadCampaign(this.currentUser);
+        viewStandings();
+    }
 
     // database connection method
     private void db_connection() {
@@ -45,8 +51,6 @@ public class CandidateController {
     // method used to initialize the candidate page
     public void initialize() {
         db_connection();
-        loadCampaign(currentUser);
-        viewStandings();
     }
 
     // display the campaign on the candidate page
@@ -61,7 +65,7 @@ public class CandidateController {
         try {
             String query = "SELECT l.first_name, l.last_name, c.campaign FROM candidate c " +
                             "INNER JOIN login l ON c.login_id = l.login_id " +
-                            "WHERE candidate_id = " + candidateID;
+                            "WHERE l.login_id = " + candidateID;
             java.sql.Statement stmt = conn.createStatement();
             java.sql.ResultSet rs = stmt.executeQuery(query);
 
@@ -219,7 +223,7 @@ public class CandidateController {
 
             // update the screen and the database
             try {
-                String query = "UPDATE candidate SET campaign = ? WHERE candidate_id = " + currentUser;
+                String query = "UPDATE candidate SET campaign = ? WHERE login_id = " + currentUser;
                 java.sql.PreparedStatement ps = conn.prepareStatement(query);
                 ps.setString(1, updatedCampaign);
 
@@ -247,7 +251,7 @@ public class CandidateController {
             String query = "SELECT l.first_name, l.last_name, l.l_username, c.party, p.position_name FROM candidate c " +
                             "INNER JOIN login l ON c.login_id = l.login_id " +
                             "LEFT JOIN positions p ON c.position_id = p.position_id " +
-                            "WHERE c.candidate_id = " + currentUser;
+                            "WHERE l.login_id = " + currentUser;
             java.sql.PreparedStatement ps = conn.prepareStatement(query);
             java.sql.ResultSet rs = ps.executeQuery();
 
@@ -283,11 +287,28 @@ public class CandidateController {
         Button editProfileBtn = new Button("Edit Profile");
         Button logOutBtn = new Button("Log Out");
 
+        final String currentName = candName;
+        final String currentUsername = candUsername;
         final String currentParty = party;
         final String currentPosition = position;
 
         // edit button actions
         editProfileBtn.setOnAction(e -> {
+            javafx.scene.control.TextInputDialog nameFDialog = new javafx.scene.control.TextInputDialog(currentName.split(" ")[0]);
+            nameFDialog.setTitle("Edit First Name");
+            nameFDialog.setHeaderText("Enter New First Name: ");
+            java.util.Optional<String> nameFResult = nameFDialog.showAndWait();
+
+            javafx.scene.control.TextInputDialog nameLDialog = new javafx.scene.control.TextInputDialog(currentName.contains(" ") ? currentName.split(" ", 2)[1] : "");
+            nameLDialog.setTitle("Edit Last Name");
+            nameLDialog.setHeaderText("Enter New Last Name: ");
+            java.util.Optional<String> nameLResult = nameLDialog.showAndWait();
+
+            javafx.scene.control.TextInputDialog usernameDialog = new javafx.scene.control.TextInputDialog(currentUsername);
+            usernameDialog.setTitle("Edit Username");
+            usernameDialog.setHeaderText("Enter New Username: ");
+            java.util.Optional<String> usernameResult = usernameDialog.showAndWait();
+
             javafx.scene.control.TextInputDialog partyDialog = new javafx.scene.control.TextInputDialog(currentParty);
             partyDialog.setTitle("Edit Party");
             partyDialog.setHeaderText("Enter New Party: ");
@@ -298,26 +319,38 @@ public class CandidateController {
             positionDialog.setHeaderText("Enter New Position: ");
             java.util.Optional<String> positionResult = positionDialog.showAndWait();
 
-            if (partyResult.isPresent() && positionResult.isPresent()) {
+            if (nameFResult.isPresent() && nameLResult.isPresent() && usernameResult.isPresent() && partyResult.isPresent() && positionResult.isPresent()) {
                 try {
                     String insertQ2 = "INSERT IGNORE INTO positions (position_name) VALUES (?)";
-                    java.sql.PreparedStatement ps2 = conn.prepareStatement(insertQ2);
-                    ps2.setString(1, positionResult.get());
-                    ps2.executeUpdate();
+                    try (java.sql.PreparedStatement ps2 = conn.prepareStatement(insertQ2)) {
+                        ps2.setString(1, positionResult.get());
+                        ps2.executeUpdate();
+                    }
 
-                    String query1 = "UPDATE candidate SET party = ? WHERE candidate_id = " + currentUser;
-                    java.sql.PreparedStatement profilePS1 = conn.prepareStatement(query1);
-                    profilePS1.setString(1, partyResult.get());
-                    int rows1 = profilePS1.executeUpdate();
+                    String updateLoginQuery = "UPDATE login SET first_name = ?, last_name = ?, l_username = ? WHERE login_id = ?";
+                    try (java.sql.PreparedStatement loginPS = conn.prepareStatement(updateLoginQuery)) {
+                        loginPS.setString(1, nameFResult.get());
+                        loginPS.setString(2, nameLResult.get());
+                        loginPS.setString(3, usernameResult.get());
+                        loginPS.setInt(4, currentUser);
+                        loginPS.executeUpdate();
+                    }
 
-                    String query2 = "UPDATE candidate SET position_id = (SELECT position_id FROM positions WHERE LOWER(position_name) = LOWER(?) LIMIT 1) WHERE candidate_id = " + currentUser;
-                    java.sql.PreparedStatement profilePS2 = conn.prepareStatement(query2);
-                    profilePS2.setString(1, positionResult.get());
-                    int rows2 = profilePS2.executeUpdate();
+                    String candidateQuery = "UPDATE candidate SET party = ?, " +
+                                            "position_id = (SELECT position_id FROM positions WHERE LOWER(position_name) = LOWER(?) LIMIT 1) " +
+                                            "WHERE login_id = ?";
+                    try (java.sql.PreparedStatement candPS = conn.prepareStatement(candidateQuery)) {
+                        candPS.setString(1, partyResult.get());
+                        candPS.setString(2, positionResult.get());
+                        candPS.setInt(3, currentUser);
+                        candPS.executeUpdate();
+                    }
 
-                    System.out.println("SQL Execute Rows Updated -> Party rows: " + rows1 + ", Position rows: " + rows2);
                     System.out.println("Profile Updated Successfully!");
                     dialog.close();
+
+                    loadCampaign(currentUser);
+
                     javafx.application.Platform.runLater(() -> goToProfile(actionEvent));
 
                 } catch (Exception err) {

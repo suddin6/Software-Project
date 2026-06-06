@@ -15,7 +15,7 @@ public class AdminController {
     private java.sql.Connection conn = null;
 
     // hard-coded user to display on admin page
-    private int currentUser = 1;
+    private int currentUser;
 
     // fx:ids from .fxml file
     @FXML private Label adminName;
@@ -28,6 +28,12 @@ public class AdminController {
     @FXML private Button refreshBtn;
     @FXML private Button profileBtn;
     @FXML private Button logoutBtn;
+
+    public void setCurrentUser(int loginID) {
+        this.currentUser = loginID;
+
+        loadDashboard();
+    }
 
     // database connection method
     private void db_connection() {
@@ -50,7 +56,6 @@ public class AdminController {
     // method used to initialize the admin page
     public void initialize() {
         db_connection();
-        loadDashboard();
     }
 
     // display welcome summary on the admin page
@@ -63,7 +68,7 @@ public class AdminController {
         try {
             String query = "SELECT l.first_name, l.last_name FROM admins a " +
                            "INNER JOIN login l ON a.login_id = l.login_id " +
-                           "WHERE a.admin_id = " + currentUser;
+                           "WHERE l.login_id = " + currentUser;
             java.sql.Statement stmt = conn.createStatement();
             java.sql.ResultSet rs = stmt.executeQuery(query);
 
@@ -425,7 +430,7 @@ public class AdminController {
         try {
             String query = "SELECT l.first_name, l.last_name, l.l_username, a.admin_id " +
                            "FROM admins a INNER JOIN login l ON a.login_id = l.login_id " +
-                           "WHERE a.admin_id = " + currentUser;
+                           "WHERE l.login_id = " + currentUser;
             java.sql.PreparedStatement ps = conn.prepareStatement(query);
             java.sql.ResultSet rs = ps.executeQuery();
 

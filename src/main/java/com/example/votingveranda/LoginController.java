@@ -20,7 +20,9 @@ public class LoginController {
 
     private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
     private final String DB_USER = "root";
-    private final String DB_PASS = "123toma456789!";
+    private final String DB_PASS = "root";
+
+    private int currentUser;
 
     @FXML
     public void handleLogin() {
@@ -39,6 +41,7 @@ public class LoginController {
 
             if (rs.next()) {
                 int userType = rs.getInt("user_id");
+                this.currentUser = rs.getInt("login_id");
 
                 showAlert("Login Successful", "Welcome " + rs.getString("first_name") + "!");
 
@@ -62,11 +65,28 @@ public class LoginController {
 
     private void switchPage(String fxmlFile) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Scene scene = new Scene(loader.load());
-
             Stage stage = (Stage) usernameField.getScene().getWindow();
+
+            boolean wasMaximized = stage.isMaximized();
+
+            double currentWidth = stage.getScene().getWidth();
+            double currentHeight = stage.getScene().getHeight();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Scene scene = new Scene(loader.load(), currentWidth, currentHeight);
+
+            if (fxmlFile.equals("candidate-view.fxml")) {
+                CandidateController controller = loader.getController();
+                controller.setCurrentUser(this.currentUser);
+            }
+
+            if (fxmlFile.equals("admin-view.fxml")) {
+                AdminController controller = loader.getController();
+                controller.setCurrentUser(this.currentUser);
+            }
+
             stage.setScene(scene);
+            stage.setMaximized(wasMaximized);
             stage.show();
 
         } catch (Exception e) {
