@@ -486,18 +486,22 @@ public class AdminController {
             if (firstNameResult.isPresent() && lastNameResult.isPresent() && usernameResult.isPresent()) {
                 try {
                     String updateQuery = "UPDATE login SET first_name = ?, last_name = ?, l_username = ? " +
-                                        "WHERE login_id = (SELECT login_id FROM admins WHERE admin_id = " + currentUser + ")";
-                    java.sql.PreparedStatement ps = conn.prepareStatement(updateQuery);
-                    ps.setString(1, firstNameResult.get());
-                    ps.setString(2, lastNameResult.get());
-                    ps.setString(3, usernameResult.get());
-                    int rows = ps.executeUpdate();
+                                        "WHERE login_id = ?";
+                    try (java.sql.PreparedStatement ps = conn.prepareStatement(updateQuery)) {
+                        ps.setString(1, firstNameResult.get());
+                        ps.setString(2, lastNameResult.get());
+                        ps.setString(3, usernameResult.get());
+                        ps.setInt(4, currentUser);
 
-                    System.out.println("Profile updated. Rows affected: " + rows);
+                        int rows = ps.executeUpdate();
+                        System.out.println("Profile updated. Rows affected: " + rows);
+                    }
+
                     System.out.println("Profile Updated Successfully!");
 
                     // refresh dashboard title and reopen profile
                     loadDashboard();
+
                     dialog.close();
                     javafx.application.Platform.runLater(() -> goToProfile(actionEvent));
 
