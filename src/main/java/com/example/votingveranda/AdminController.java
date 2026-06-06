@@ -113,17 +113,17 @@ public class AdminController {
             java.sql.ResultSet rs = stmt.executeQuery(query);
 
             StringBuilder output = new StringBuilder();
-            output.append("VOTER INFORMATION\n====================================\n\n");
+            output.append("𝐕𝐎𝐓𝐄𝐑 𝐈𝐍𝐅𝐎𝐑𝐌𝐀𝐓𝐈𝐎𝐍\n====================================\n\n");
 
             int count = 0;
             while (rs.next()) {
                 count++;
-                output.append("Voter ID:     ").append(rs.getInt("voter_id")).append("\n");
-                output.append("Name:         ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
-                output.append("Username:     ").append(rs.getString("l_username")).append("\n");
-                output.append("SSN:          ").append(rs.getString("ssn")).append("\n");
-                output.append("Vote Status:  ").append(rs.getBoolean("vote_status") ? "Voted" : "Has Not Voted").append("\n");
-                output.append("------------------------------------\n\n");
+                output.append("𝐕𝐨𝐭𝐞𝐫 𝐈𝐃:        ").append(rs.getInt("voter_id")).append("\n");
+                output.append("𝐍𝐚𝐦𝐞:          ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
+                output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞:       ").append(rs.getString("l_username")).append("\n");
+                output.append("𝐒𝐒𝐍:            ").append(rs.getString("ssn")).append("\n");
+                output.append("𝐕𝐨𝐭𝐞 𝐒𝐭𝐚𝐭𝐮𝐬:     ").append(rs.getBoolean("vote_status") ? "Voted" : "Has Not Voted").append("\n");
+                output.append("\n------------------------------------\n\n");
             }
             if (count == 0) output.append("No voters found.\n");
 
@@ -152,22 +152,22 @@ public class AdminController {
             java.sql.ResultSet rs = stmt.executeQuery(query);
 
             StringBuilder output = new StringBuilder();
-            output.append("CANDIDATE INFORMATION\n====================================\n\n");
+            output.append("𝐂𝐀𝐍𝐃𝐈𝐃𝐀𝐓𝐄 𝐈𝐍𝐅𝐎𝐑𝐌𝐀𝐓𝐈𝐎𝐍\n====================================\n\n");
 
             int count = 0;
             while (rs.next()) {
                 count++;
                 String campaign = rs.getString("campaign");
-                if (campaign != null && campaign.length() > 120) {
-                    campaign = campaign.substring(0, 120) + "...";
-                }
-                output.append("Candidate ID: ").append(rs.getInt("candidate_id")).append("\n");
-                output.append("Name:         ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
-                output.append("Username:     ").append(rs.getString("l_username")).append("\n");
-                output.append("Party:        ").append(rs.getString("party")).append("\n");
-                output.append("Position:     ").append(rs.getString("position_name")).append("\n");
-                output.append("Campaign:     ").append(campaign != null ? campaign : "N/A").append("\n");
-                output.append("------------------------------------\n\n");
+//                if (campaign != null && campaign.length() > 120) {
+//                    campaign = campaign.substring(0, 120) + "...";
+//                }
+                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃:    ").append(rs.getInt("candidate_id")).append("\n");
+                output.append("𝐍𝐚𝐦𝐞:          ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
+                output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞:      ").append(rs.getString("l_username")).append("\n");
+                output.append("𝐏𝐚𝐫𝐭𝐲:          ").append(rs.getString("party")).append("\n");
+                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧:          ").append(rs.getString("position_name")).append("\n");
+                output.append("𝐂𝐚𝐦𝐩𝐚𝐢𝐠𝐧:       \t").append(campaign != null ? campaign : "N/A").append("\n");
+                output.append("\n------------------------------------\n\n");
             }
             if (count == 0) output.append("No candidates found.\n");
 
@@ -199,18 +199,18 @@ public class AdminController {
             java.sql.ResultSet rs = stmt.executeQuery(query);
 
             StringBuilder output = new StringBuilder();
-            output.append("VOTE COUNTS AND STANDINGS\n====================================\n\n");
+            output.append("𝐕𝐎𝐓𝐄 𝐂𝐎𝐔𝐍𝐓𝐒 𝐀𝐍𝐃 𝐒𝐓𝐀𝐍𝐃𝐈𝐍𝐆𝐒\n====================================\n\n");
 
             int rank = 0;
             while (rs.next()) {
                 rank++;
-                output.append("Rank #").append(rank).append("\n");
-                output.append("Candidate ID: ").append(rs.getInt("candidate_id")).append("\n");
-                output.append("Name:         ").append(rs.getString("candidate_name")).append("\n");
-                output.append("Party:        ").append(rs.getString("party")).append("\n");
-                output.append("Position:     ").append(rs.getString("position_name")).append("\n");
-                output.append("Total Votes:  ").append(rs.getInt("total_votes")).append("\n");
-                output.append("------------------------------------\n\n");
+                output.append("𝐑𝐚𝐧𝐤 #").append(rank).append("\n");
+                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃:    ").append(rs.getInt("candidate_id")).append("\n");
+                output.append("𝐍𝐚𝐦𝐞:          ").append(rs.getString("candidate_name")).append("\n");
+                output.append("𝐏𝐚𝐫𝐭𝐲:          ").append(rs.getString("party")).append("\n");
+                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧:        ").append(rs.getString("position_name")).append("\n");
+                output.append("𝐓𝐨𝐭𝐚𝐥 𝐕𝐨𝐭𝐞𝐬:     ").append(rs.getInt("total_votes")).append("\n");
+                output.append("\n------------------------------------\n\n");
             }
             if (rank == 0) output.append("No vote data found.\n");
 
