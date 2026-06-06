@@ -54,9 +54,10 @@
                 <Button fx:id="loginButton"
                         text="Login"
                         onAction="#handleLogin"
+                        defaultButton="true"
                         prefWidth="330.0"
                         prefHeight="45.0"
-                        style="-fx-background-color: #5fa8a3; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 10;" />
+                        style="-fx-background-color: #5fa8a3; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" />
 
             </VBox>
         </VBox>

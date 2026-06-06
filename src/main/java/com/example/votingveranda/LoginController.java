@@ -20,7 +20,7 @@ public class LoginController {
 
     private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
     private final String DB_USER = "root";
-    private final String DB_PASS = "root";
+    private final String DB_PASS = "123toma456789!";
 
     @FXML
     public void handleLogin() {
@@ -63,7 +63,7 @@ public class LoginController {
     private void switchPage(String fxmlFile) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
-            Scene scene = new Scene(loader.load(), 1000, 700);
+            Scene scene = new Scene(loader.load());
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(scene);
