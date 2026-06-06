@@ -59,7 +59,7 @@
                   <Insets bottom="-40.0" />
                </VBox.margin>
             </Label>
-            <AreaChart fx:id="candidateStandings" alternativeColumnFillVisible="true" prefHeight="480.0" prefWidth="1001.0" style="-fx-background-color: transparent; -fx-background-radius: 15; -fx-series0: #1a73e8; -fx-series1: #ea4335; -fx-series2: #34a853;" VBox.vgrow="ALWAYS">
+            <StackedBarChart fx:id="candidateStandings" alternativeColumnFillVisible="true" prefHeight="480.0" prefWidth="1001.0" style="-fx-background-color: transparent; -fx-background-radius: 15; -fx-series0: #1a73e8; -fx-series1: #ea4335; -fx-series2: #34a853;" VBox.vgrow="ALWAYS">
               <xAxis>
                 <CategoryAxis side="BOTTOM" />
               </xAxis>
@@ -73,7 +73,7 @@
                <VBox.margin>
                   <Insets top="20.0" />
                </VBox.margin>
-            </AreaChart>
+            </StackedBarChart>
          </children>
       </VBox>
       <Button fx:id="profileBtn" alignment="BOTTOM_CENTER" contentDisplay="CENTER" layoutX="999.0" layoutY="38.0" mnemonicParsing="false" onAction="#goToProfile" prefHeight="61.0" prefWidth="61.0" style="-fx-background-radius: 30; -fx-background-color: #dfc07d; -fx-border-radius: 30; -fx-border-color: black;" text="👤" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="18.0">

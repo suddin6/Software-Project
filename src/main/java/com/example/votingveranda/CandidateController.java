@@ -2,7 +2,7 @@ package com.example.votingveranda;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
@@ -22,7 +22,7 @@ public class CandidateController {
     // fx:ids from .fxml file
     @FXML private Label campaignText;
     @FXML private Label candidateName;
-    @FXML private AreaChart candidateStandings;
+    @FXML private StackedBarChart<String, Number> candidateStandings;
 
     public void setCurrentUser(int loginID) {
         this.currentUser = loginID;
@@ -85,84 +85,130 @@ public class CandidateController {
         }
     }
 
-    // method to view standings of all candidates
+    // method to view standings of candidates relative to position
     private void viewStandings() {
         candidateStandings.getData().clear();
 
-        if (candidateStandings.getXAxis() instanceof CategoryAxis) {
-            ((CategoryAxis) candidateStandings.getXAxis()).setGapStartAndEnd(false);
+        if (conn == null) {
+            return;
         }
 
-        XYChart.Series<String, Number> demSeries = new XYChart.Series<>();
-        demSeries.setName("Democratic Party");
-        demSeries.getData().add(new XYChart.Data<>("May 15",300));
-        demSeries.getData().add(new XYChart.Data<>("May 20",230));
-        demSeries.getData().add(new XYChart.Data<>("May 25",428));
-        demSeries.getData().add(new XYChart.Data<>("May 30",133));
-        demSeries.getData().add(new XYChart.Data<>("June 5",510));
-        demSeries.getData().add(new XYChart.Data<>("June 10",291));
+        int positionID = -1;
+        String positionName = "";
 
-        XYChart.Series<String, Number> repSeries = new XYChart.Series<>();
-        repSeries.setName("Republican Party");
-        repSeries.getData().add(new XYChart.Data<>("May 15",529));
-        repSeries.getData().add(new XYChart.Data<>("May 20",102));
-        repSeries.getData().add(new XYChart.Data<>("May 25",342));
-        repSeries.getData().add(new XYChart.Data<>("May 30",343));
-        repSeries.getData().add(new XYChart.Data<>("June 5",104));
-        repSeries.getData().add(new XYChart.Data<>("June 10",221));
+        try {
+            String getPosQuery = "SELECT c.position_id, p.position_name FROM candidate c " +
+                                    "INNER JOIN positions p ON c.position_id = p.position_id " +
+                                    "WHERE c.login_id = " + currentUser;
+            java.sql.Statement posSTMT = conn.createStatement();
+            java.sql.ResultSet posRS = posSTMT.executeQuery(getPosQuery);
+            if (posRS.next()) {
+                positionID = posRS.getInt("position_id");
+                positionName = posRS.getString("position_name");
+            }
+        } catch (Exception error) {
+            System.out.println("Error finding position: " + error.getMessage());
+            error.printStackTrace();
+            return;
+        }
 
-        XYChart.Series<String, Number> greenSeries = new XYChart.Series<>();
-        greenSeries.setName("Green Party");
-        greenSeries.getData().add(new XYChart.Data<>("May 15",100));
-        greenSeries.getData().add(new XYChart.Data<>("May 20",250));
-        greenSeries.getData().add(new XYChart.Data<>("May 25",242));
-        greenSeries.getData().add(new XYChart.Data<>("May 30",133));
-        greenSeries.getData().add(new XYChart.Data<>("June 5",120));
-        greenSeries.getData().add(new XYChart.Data<>("June 10",191));
+        if (positionID == -1) {
+            return;
+        }
 
-        candidateStandings.getData().addAll(demSeries, repSeries, greenSeries);
+        try {
+            String query = "SELECT CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes " +
+                    "FROM candidate c " +
+                    "INNER JOIN login l ON c.login_id = l.login_id " +
+                    "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
+                    "WHERE c.position_id = " + positionID + " " +
+                    "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party";
+
+            java.sql.Statement stmt = conn.createStatement();
+            java.sql.ResultSet rs = stmt.executeQuery(query);
+
+            XYChart.Series<String, Number> demSeries = new XYChart.Series<>();
+            demSeries.setName("Democratic Party");
+
+            XYChart.Series<String, Number> repSeries = new XYChart.Series<>();
+            repSeries.setName("Republican Party");
+
+            XYChart.Series<String, Number> greenSeries = new XYChart.Series<>();
+            greenSeries.setName("Green Party");
+
+            while (rs.next()) {
+                String name = rs.getString("c_name");
+                String party= rs.getString("party");
+                int votes = rs.getInt("total_votes");
+
+                if ("Democrat".equalsIgnoreCase(party)) {
+                    demSeries.getData().add(new XYChart.Data<>(name, votes));
+                } else if ("Republican".equalsIgnoreCase(party)) {
+                    repSeries.getData().add(new XYChart.Data<>(name, votes));
+                } else if ("Green Party".equalsIgnoreCase(party)) {
+                    greenSeries.getData().add(new XYChart.Data<>(name, votes));
+                }
+            }
+
+            if (demSeries.getData().size() > 0) {
+                candidateStandings.getData().add(demSeries);
+            }
+
+            if (repSeries.getData().size() > 0) {
+                candidateStandings.getData().add(repSeries);
+            }
+
+            if (greenSeries.getData().size() >0) {
+                candidateStandings.getData().add(greenSeries);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error for standings: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         candidateStandings.setPrefHeight(Region.USE_COMPUTED_SIZE);
         candidateStandings.setPrefWidth(Region.USE_COMPUTED_SIZE);
         candidateStandings.setMinHeight(275);
 
+        candidateStandings.setCategoryGap(0);
+
         candidateStandings.setStyle(
                 "-fx-background-color: transparent; "
                 + "-fx-font-size: 13px; "
                 + "-fx-text-fill: #dfc07d; "
-                + "-fx-text-background-color: #dfc07d;"
+                + "-fx-text-background-color: #dfc07d; "
                 + "CHART_COLOR_1: #1a73e8; "
                 + "CHART_COLOR_2: #ea4335; "
                 + "CHART_COLOR_3: #34a853;"
+                + "-fx-bar-width: 35px"
         );
 
-        // color coordinated UI: blue for democrat, red for republican, green for green party
-        demSeries.getNode().lookup(".chart-series-area-line").setStyle("-fx-stroke: #1a73e8;");
-        demSeries.getNode().lookup(".chart-series-area-fill").setStyle("-fx-fill: rgba(26, 115, 232, 0.15);");
+        javafx.application.Platform.runLater(() -> {
+            for (int i = 0; i < candidateStandings.getData().size(); i++) {
+                XYChart.Series<String, Number> series = candidateStandings.getData().get(i);
+                String barColor = "-fx-bar-fill: #dfc07d";
 
-        repSeries.getNode().lookup(".chart-series-area-line").setStyle("-fx-stroke: #ea4335;");
-        repSeries.getNode().lookup(".chart-series-area-fill").setStyle("-fx-fill: rgba(234, 67, 53, 0.15);");
+                if ("Democratic Party".equals(series.getName())) {
+                    barColor = "-fx-bar-fill: #1a73e8";
+                } else if ("Republican Party".equals(series.getName())) {
+                    barColor = "-fx-bar-fill: #ea4335";
+                } else if ("Green Party".equals(series.getName())) {
+                    barColor = "-fx-bar-fill: #34a853";
+                }
 
-        greenSeries.getNode().lookup(".chart-series-area-line").setStyle("-fx-stroke: #34a853;");
-        greenSeries.getNode().lookup(".chart-series-area-fill").setStyle("-fx-fill: rgba(52, 168, 83, 0.15);");
+                for (XYChart.Data<String, Number> data : series.getData()) {
+                    if (data.getNode() != null) {
+                        data.getNode().setStyle(barColor);
+                    }
+                }
+            }
+        });
 
-        for (XYChart.Data<String, Number> data : demSeries.getData()) {
-            if (data.getNode() != null) data.getNode().lookup(".chart-area-symbol").setStyle("-fx-background-color: #1a73e8, white;");
-        }
-
-        for (XYChart.Data<String, Number> data : repSeries.getData()) {
-            if (data.getNode() != null) data.getNode().lookup(".chart-area-symbol").setStyle("-fx-background-color: #ea4335, white;");
-        }
-
-        for (XYChart.Data<String, Number> data : greenSeries.getData()) {
-            if (data.getNode() != null) data.getNode().lookup(".chart-area-symbol").setStyle("-fx-background-color: #34a853, white;");
-        }
-
-        // UI for the legend of Standings char
+        // UI for the legend of Standings chart
         javafx.scene.Node legend = candidateStandings.lookup(".chart-legend");
         if (legend instanceof javafx.scene.layout.Region) {
             javafx.scene.layout.Region legReg = (javafx.scene.layout.Region) legend;
-
             legReg.setPrefWidth(Region.USE_COMPUTED_SIZE);
             legReg.setMinWidth(600);
 
