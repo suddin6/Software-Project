@@ -31,7 +31,6 @@ public class AdminController {
 
     public void setCurrentUser(int loginID) {
         this.currentUser = loginID;
-
         loadDashboard();
     }
 
@@ -118,11 +117,12 @@ public class AdminController {
             int count = 0;
             while (rs.next()) {
                 count++;
-                output.append("𝐕𝐨𝐭𝐞𝐫 𝐈𝐃:        ").append(rs.getInt("voter_id")).append("\n");
-                output.append("𝐍𝐚𝐦𝐞:          ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
-                output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞:       ").append(rs.getString("l_username")).append("\n");
-                output.append("𝐒𝐒𝐍:            ").append(rs.getString("ssn")).append("\n");
-                output.append("𝐕𝐨𝐭𝐞 𝐒𝐭𝐚𝐭𝐮𝐬:     ").append(rs.getBoolean("vote_status") ? "Voted" : "Has Not Voted").append("\n");
+                // FIX: spacing aligned to 14 visual chars per label
+                output.append("𝐕𝐨𝐭𝐞𝐫 𝐈𝐃:     ").append(rs.getInt("voter_id")).append("\n");
+                output.append("𝐍𝐚𝐦𝐞:         ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
+                output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞:     ").append(rs.getString("l_username")).append("\n");
+                output.append("𝐒𝐒𝐍:          ").append(rs.getString("ssn")).append("\n");
+                output.append("𝐕𝐨𝐭𝐞 𝐒𝐭𝐚𝐭𝐮𝐬:  ").append(rs.getBoolean("vote_status") ? "Voted" : "Has Not Voted").append("\n");
                 output.append("\n------------------------------------\n\n");
             }
             if (count == 0) output.append("No voters found.\n");
@@ -158,15 +158,13 @@ public class AdminController {
             while (rs.next()) {
                 count++;
                 String campaign = rs.getString("campaign");
-//                if (campaign != null && campaign.length() > 120) {
-//                    campaign = campaign.substring(0, 120) + "...";
-//                }
-                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃:    ").append(rs.getInt("candidate_id")).append("\n");
+                // FIX: spacing aligned to 15 visual chars per label
+                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃:  ").append(rs.getInt("candidate_id")).append("\n");
                 output.append("𝐍𝐚𝐦𝐞:          ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
                 output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞:      ").append(rs.getString("l_username")).append("\n");
-                output.append("𝐏𝐚𝐫𝐭𝐲:          ").append(rs.getString("party")).append("\n");
-                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧:          ").append(rs.getString("position_name")).append("\n");
-                output.append("𝐂𝐚𝐦𝐩𝐚𝐢𝐠𝐧:       \t").append(campaign != null ? campaign : "N/A").append("\n");
+                output.append("𝐏𝐚𝐫𝐭𝐲:         ").append(rs.getString("party")).append("\n");
+                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧:      ").append(rs.getString("position_name")).append("\n");
+                output.append("𝐂𝐚𝐦𝐩𝐚𝐢𝐠𝐧:      ").append(campaign != null ? campaign : "N/A").append("\n");
                 output.append("\n------------------------------------\n\n");
             }
             if (count == 0) output.append("No candidates found.\n");
@@ -204,12 +202,13 @@ public class AdminController {
             int rank = 0;
             while (rs.next()) {
                 rank++;
+                // FIX: spacing aligned to 15 visual chars per label
                 output.append("𝐑𝐚𝐧𝐤 #").append(rank).append("\n");
-                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃:    ").append(rs.getInt("candidate_id")).append("\n");
+                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃:  ").append(rs.getInt("candidate_id")).append("\n");
                 output.append("𝐍𝐚𝐦𝐞:          ").append(rs.getString("candidate_name")).append("\n");
-                output.append("𝐏𝐚𝐫𝐭𝐲:          ").append(rs.getString("party")).append("\n");
-                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧:        ").append(rs.getString("position_name")).append("\n");
-                output.append("𝐓𝐨𝐭𝐚𝐥 𝐕𝐨𝐭𝐞𝐬:     ").append(rs.getInt("total_votes")).append("\n");
+                output.append("𝐏𝐚𝐫𝐭𝐲:         ").append(rs.getString("party")).append("\n");
+                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧:      ").append(rs.getString("position_name")).append("\n");
+                output.append("𝐓𝐨𝐭𝐚𝐥 𝐕𝐨𝐭𝐞𝐬:   ").append(rs.getInt("total_votes")).append("\n");
                 output.append("\n------------------------------------\n\n");
             }
             if (rank == 0) output.append("No vote data found.\n");
@@ -466,7 +465,7 @@ public class AdminController {
         final String currentName     = adminFullName;
         final String currentUsername = adminUsername;
 
-        // edit profile button actions 
+        // edit profile button actions
         editProfileBtn.setOnAction(e -> {
             javafx.scene.control.TextInputDialog firstNameDialog = new javafx.scene.control.TextInputDialog(currentName.split(" ")[0]);
             firstNameDialog.setTitle("Edit First Name");
@@ -492,16 +491,12 @@ public class AdminController {
                         ps.setString(2, lastNameResult.get());
                         ps.setString(3, usernameResult.get());
                         ps.setInt(4, currentUser);
-
                         int rows = ps.executeUpdate();
                         System.out.println("Profile updated. Rows affected: " + rows);
                     }
 
                     System.out.println("Profile Updated Successfully!");
-
-                    // refresh dashboard title and reopen profile
                     loadDashboard();
-
                     dialog.close();
                     javafx.application.Platform.runLater(() -> goToProfile(actionEvent));
 
