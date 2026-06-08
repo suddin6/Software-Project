@@ -50,7 +50,8 @@ public class LoginController {
                 } else if (userType == 2) {
                     switchPage("candidate-view.fxml");
                 } else {
-                    showAlert("Voter Page", "Voter page is not connected yet.");
+                    switchPage("voter-view.fxml");
+//                    showAlert("Voter Page", "Voter page is not connected yet.");
                 }
 
             } else {
