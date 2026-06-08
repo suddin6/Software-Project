@@ -10,10 +10,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 
 public class CandidateController {
-    // information to connect to database using mySQL workbench
-    private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
-    private final String DB_USER = "root";
-    private final String DB_PASS = "root";
     private java.sql.Connection conn = null;
 
     // hard-coded user to display on candidate page
@@ -31,26 +27,10 @@ public class CandidateController {
         viewStandings();
     }
 
-    // database connection method
-    private void db_connection() {
-        // if "Connecting" and "Success" show up in terminal, database has connected
-        System.out.println("Connecting");
-        try {
-            conn = java.sql.DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-            if (conn != null) {
-                System.out.println("Success");
-            }
-        } catch (java.sql.SQLException e) {
-            System.out.println("Fail");
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     @FXML
     // method used to initialize the candidate page
     public void initialize() {
-        db_connection();
+        this.conn = DatabaseAPI.db_connection();
     }
 
     // display the campaign on the candidate page
@@ -276,10 +256,9 @@ public class CandidateController {
                 int updatedRows = ps.executeUpdate();
                 if (updatedRows > 0) {
                     campaignText.setText(updatedCampaign);
-                    System.out.println("successful update");
                 }
             } catch (Exception e) {
-                System.out.println("sql error" + e.getMessage());
+                System.out.println("SQL Error" + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -392,7 +371,6 @@ public class CandidateController {
                         candPS.executeUpdate();
                     }
 
-                    System.out.println("Profile Updated Successfully!");
                     dialog.close();
 
                     loadCampaign(currentUser);

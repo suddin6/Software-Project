@@ -7,11 +7,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 
 public class AdminController {
-
-    // information to connect to database using mySQL workbench
-    private final String DB_URL  = "jdbc:mysql://localhost:3306/voting_veranda";
-    private final String DB_USER = "root";
-    private final String DB_PASS = "root";
     private java.sql.Connection conn = null;
 
     // hard-coded user to display on admin page
@@ -34,27 +29,10 @@ public class AdminController {
         loadDashboard();
     }
 
-    // database connection method
-    private void db_connection() {
-        // if "Connecting" and "Success" show up in terminal, database has connected
-        System.out.println("Connecting");
-        try {
-            conn = java.sql.DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-            if (conn != null) {
-                System.out.println("Success");
-            }
-        } catch (java.sql.SQLException e) {
-            System.out.println("Fail");
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            adminOutput.setText("Could not connect to the database.\n\nError: " + e.getMessage());
-        }
-    }
-
     @FXML
     // method used to initialize the admin page
     public void initialize() {
-        db_connection();
+        this.conn = DatabaseAPI.db_connection();
     }
 
     // display welcome summary on the admin page
@@ -78,7 +56,7 @@ public class AdminController {
             }
 
         } catch (Exception e) {
-            System.out.println("SQL error: " + e.getMessage());
+            System.out.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
             adminName.setText("Admin");
         }
@@ -130,7 +108,7 @@ public class AdminController {
             adminOutput.setText(output.toString());
 
         } catch (Exception e) {
-            System.out.println("SQL error: " + e.getMessage());
+            System.out.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
             adminOutput.setText("Error loading voters.");
         }
@@ -172,7 +150,7 @@ public class AdminController {
             adminOutput.setText(output.toString());
 
         } catch (Exception e) {
-            System.out.println("SQL error: " + e.getMessage());
+            System.out.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
             adminOutput.setText("Error loading candidates.");
         }
@@ -216,7 +194,7 @@ public class AdminController {
             adminOutput.setText(output.toString());
 
         } catch (Exception e) {
-            System.out.println("SQL error: " + e.getMessage());
+            System.out.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
             adminOutput.setText("Error loading vote counts.");
         }
@@ -303,7 +281,7 @@ public class AdminController {
             }
 
         } catch (Exception e) {
-            System.out.println("SQL error: " + e.getMessage());
+            System.out.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
             adminOutput.setText("Error editing voter:\n" + e.getMessage());
         }
@@ -407,7 +385,7 @@ public class AdminController {
             }
 
         } catch (Exception e) {
-            System.out.println("SQL error: " + e.getMessage());
+            System.out.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
             adminOutput.setText("Error editing candidate:\n" + e.getMessage());
         }
@@ -495,7 +473,6 @@ public class AdminController {
                         System.out.println("Profile updated. Rows affected: " + rows);
                     }
 
-                    System.out.println("Profile Updated Successfully!");
                     loadDashboard();
                     dialog.close();
                     javafx.application.Platform.runLater(() -> goToProfile(actionEvent));
@@ -544,7 +521,6 @@ public class AdminController {
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
-                System.out.println("Database connection closed.");
             }
         } catch (java.sql.SQLException e) {
             e.printStackTrace();

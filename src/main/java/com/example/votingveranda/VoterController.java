@@ -9,10 +9,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 
 public class VoterController {
-    private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
-    private final String DB_USER = "root";
-    private final String DB_PASS = "root";
     private java.sql.Connection conn = null;
+
     private int currentUser;
     @FXML private Label voterName;
     @FXML private javafx.scene.layout.VBox chartsContainer;
@@ -23,26 +21,10 @@ public class VoterController {
         viewStandings();
     }
 
-    // database connection method
-    private void db_connection() {
-        // if "Connecting" and "Success" show up in terminal, database has connected
-        System.out.println("Connecting");
-        try {
-            conn = java.sql.DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-            if (conn != null) {
-                System.out.println("Success");
-            }
-        } catch (java.sql.SQLException e) {
-            System.out.println("Fail");
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     @FXML
     // method used to initialize the candidate page
     public void initialize() {
-        db_connection();
+        this.conn = DatabaseAPI.db_connection();
     }
 
     public void loadDashboard() {
@@ -65,7 +47,7 @@ public class VoterController {
             }
 
         } catch (Exception e) {
-            System.out.println("SQL error: " + e.getMessage());
+            System.out.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
             voterName.setText("Name Not Found");
         }
@@ -311,8 +293,6 @@ public class VoterController {
                         int rows = ps.executeUpdate();
                         System.out.println("Profile updated. Rows affected: " + rows);
                     }
-
-                    System.out.println("Profile Updated Successfully!");
 
                     loadDashboard();
 

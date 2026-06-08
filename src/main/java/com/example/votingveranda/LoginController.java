@@ -11,16 +11,12 @@ import javafx.stage.Stage;
 import java.sql.*;
 
 public class LoginController {
-
     @FXML
     private TextField usernameField;
-
     @FXML
     private PasswordField passwordField;
 
-    private final String DB_URL = "jdbc:mysql://localhost:3306/voting_veranda";
-    private final String DB_USER = "root";
-    private final String DB_PASS = "root";
+    private java.sql.Connection conn = null;
 
     private int currentUser;
 
@@ -31,33 +27,31 @@ public class LoginController {
 
         String sql = "SELECT * FROM login WHERE l_username = ? AND l_password = ?";
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try {
+            this.conn = DatabaseAPI.db_connection();
 
-            stmt.setString(1, username);
-            stmt.setString(2, password);
+            try (PreparedStatement stmt = this.conn.prepareStatement(sql)) {
+                stmt.setString(1, username);
+                stmt.setString(2, password);
 
-            ResultSet rs = stmt.executeQuery();
+                ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                int userType = rs.getInt("user_id");
-                this.currentUser = rs.getInt("login_id");
-
-                showAlert("Login Successful", "Welcome " + rs.getString("first_name") + "!");
-
-                if (userType == 3) {
-                    switchPage("admin-view.fxml");
-                } else if (userType == 2) {
-                    switchPage("candidate-view.fxml");
+                if (rs.next()) {
+                    int userType = rs.getInt("user_id");
+                    this.currentUser = rs.getInt("login_id");
+                    showAlert("Login Successful", "Welcome " + rs.getString("first_name") + "!");
+                    if (userType == 3) {
+                        switchPage("admin-view.fxml");
+                    } else if (userType == 2) {
+                        switchPage("candidate-view.fxml");
+                    } else {
+                        switchPage("voter-view.fxml");
+                        //                    showAlert("Voter Page", "Voter page is not connected yet.");
+                    }
                 } else {
-                    switchPage("voter-view.fxml");
-//                    showAlert("Voter Page", "Voter page is not connected yet.");
+                    showAlert("Login Failed", "Invalid username or password.");
                 }
-
-            } else {
-                showAlert("Login Failed", "Invalid username or password.");
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Database Error", "Could not connect to database.");
