@@ -15,13 +15,6 @@ public class AdminController {
     // fx:ids from .fxml file
     @FXML private Label adminName;
     @FXML private TextArea adminOutput;
-    @FXML private Button viewVotersBtn;
-    @FXML private Button viewCandidatesBtn;
-    @FXML private Button viewVoteCountsBtn;
-    @FXML private Button editVoterBtn;
-    @FXML private Button editCandidateBtn;
-    @FXML private Button refreshBtn;
-    @FXML private Button profileBtn;
     @FXML private Button logoutBtn;
 
     public void setCurrentUser(int loginID) {

@@ -27,7 +27,7 @@ public class VoterController {
         this.conn = DatabaseAPI.db_connection();
     }
 
-    public void loadDashboard() {
+    private void loadDashboard() {
         if (conn == null) {
             voterName.setText("Try again later");
             return;
