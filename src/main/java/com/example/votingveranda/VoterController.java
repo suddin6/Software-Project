@@ -305,10 +305,10 @@ public class VoterController {
             }
         });
 
-        // log out button action
+        // log out button actions
         logOutBtn.setOnAction(e -> {
             dialog.close();
-            javafx.stage.Stage stage = (javafx.stage.Stage) logOutBtn.getScene().getWindow();
+            javafx.stage.Stage stage = (javafx.stage.Stage) chartsContainer.getScene().getWindow();
             stage.close();
         });
 
