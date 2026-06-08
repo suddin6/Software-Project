@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="900.0" prefWidth="1072.0" style="-fx-background-color: #0E1525;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.votingveranda.CandidateController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+   <children>
+      <VBox alignment="TOP_CENTER" layoutX="20.0" layoutY="59.0" spacing="30.0" AnchorPane.bottomAnchor="47.66666666666663" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="59.0">
+         <children>
+            <Label fx:id="voterName" alignment="CENTER" text="Voter Name" textFill="#549892">
+                <VBox.margin>
+                    <Insets top="-40.0" />
+                </VBox.margin>
+               <font>
+                  <Font name="Bell MT Bold" size="48.0" />
+               </font>
+            </Label>
+            <AnchorPane fx:id="voteability" maxHeight="1.7976931348623157E308" prefHeight="480.0" prefWidth="992.0" style="-fx-background-color: #293146; -fx-background-radius: 15;" VBox.vgrow="SOMETIMES">
+               <children>
+                  <Label fx:id="voteability" contentDisplay="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="48.0" prefWidth="992.0" style="-fx-padding: 15; -fx-background-color: #dfc07d; -fx-background-radius: 15 15 0 0;" text="Campaign:" textFill="#1a1e29" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <font>
+                        <Font name="Arial Rounded MT Bold" size="18.0" />
+                     </font>
+                  </Label>
+               </children>
+               <VBox.margin>
+                  <Insets top="15.0" />
+               </VBox.margin>
+            </AnchorPane>
+         </children>
+      </VBox>
+      <Button fx:id="profileBtn" alignment="BOTTOM_CENTER" contentDisplay="CENTER" layoutX="999.0" layoutY="38.0" mnemonicParsing="false" onAction="#goToProfile" prefHeight="61.0" prefWidth="61.0" style="-fx-background-radius: 30; -fx-background-color: #dfc07d; -fx-border-radius: 30; -fx-border-color: black;" text="👤" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="18.0">
+         <font>
+            <Font size="24.0" />
+         </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Button>
+   </children>
+</AnchorPane>
