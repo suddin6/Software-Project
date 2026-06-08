@@ -7,7 +7,11 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="900.0" prefWidth="1072.0" style="-fx-background-color: #0E1525;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.votingveranda.CandidateController">
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.StackedBarChart?>
+
+<AnchorPane prefHeight="900.0" prefWidth="1072.0" style="-fx-background-color: #0E1525;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.votingveranda.VoterController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -22,18 +26,30 @@
                         <Font name="Bell MT Bold" size="48.0" />
                     </font>
                 </Label>
-                <AnchorPane fx:id="voteability" maxHeight="1.7976931348623157E308" prefHeight="480.0" prefWidth="992.0" style="-fx-background-color: #293146; -fx-background-radius: 15;" VBox.vgrow="SOMETIMES">
-                    <children>
-                        <Label fx:id="vote" contentDisplay="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="48.0" prefWidth="992.0" style="-fx-padding: 15; -fx-background-color: #dfc07d; -fx-background-radius: 15 15 0 0;" text="Campaign:" textFill="#1a1e29" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                            <font>
-                                <Font name="Arial Rounded MT Bold" size="18.0" />
-                            </font>
-                        </Label>
-                    </children>
-                    <VBox.margin>
-                        <Insets top="15.0" />
-                    </VBox.margin>
-                </AnchorPane>
+
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets right="15.0" />
+                    </padding>
+                    <content>
+                        <VBox alignment="TOP_CENTER" spacing="30.0" style="-fx-background-color: transparent;">
+                            <children>
+
+                                <AnchorPane fx:id="voteability" maxHeight="1.7976931348623157E308" prefHeight="400.0" style="-fx-background-color: #293146; -fx-background-radius: 15;" VBox.vgrow="SOMETIMES">
+                                    <children>
+                                        <Label fx:id="vote" contentDisplay="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="48.0" prefWidth="992.0" style="-fx-padding: 15; -fx-background-color: #dfc07d; -fx-background-radius: 15 15 0 0; -fx-text-fill: #293146" text="Voter Information:" textFill="#1a1e29" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <font>
+                                                <Font name="Arial Rounded MT Bold" size="18.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </AnchorPane>
+
+                                <VBox fx:id="chartsContainer" spacing="30.0" style="-fx-background-color: transparent;"/>
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
             </children>
         </VBox>
         <Button fx:id="profileBtn" alignment="BOTTOM_CENTER" contentDisplay="CENTER" layoutX="999.0" layoutY="38.0" mnemonicParsing="false" onAction="#goToProfile" prefHeight="61.0" prefWidth="61.0" style="-fx-background-radius: 30; -fx-background-color: #dfc07d; -fx-border-radius: 30; -fx-border-color: black;" text="👤" AnchorPane.rightAnchor="60.0" AnchorPane.topAnchor="18.0">

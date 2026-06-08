@@ -86,6 +86,11 @@ public class LoginController {
                 controller.setCurrentUser(this.currentUser);
             }
 
+            if (fxmlFile.equals("voter-view.fxml")) {
+                VoterController controller = loader.getController();
+                controller.setCurrentUser(this.currentUser);
+            }
+
             stage.setScene(scene);
             stage.setMaximized(wasMaximized);
             stage.show();
