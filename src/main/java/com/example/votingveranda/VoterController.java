@@ -8,8 +8,12 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 
+import java.util.Scanner;
+
 public class VoterController {
     private java.sql.Connection conn = null;
+    static int votes_candidate_fk = 0;
+    static int candidate_id = 1;
 
     private int currentUser;
     @FXML private Label voterName;
@@ -19,6 +23,20 @@ public class VoterController {
         this.currentUser = loginID;
         loadDashboard();
         viewStandings();
+    }
+    public static void castVote(String[] args) {
+        Scanner Candidate = new Scanner(System.in);
+        System.out.print("Please insert name of Candidate you wish to vote for: ");
+        while(true) {
+            if (Candidate.nextInt() == candidate_id) {
+                String name = Candidate.nextLine();
+                System.out.println("You have voted for " + name);
+                votes_candidate_fk = votes_candidate_fk + 1;
+                break;
+            } else {
+                System.out.println("Invalid candidate, please try again.");
+            }
+        }
     }
 
     @FXML

@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Font?>
-
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.StackedBarChart?>
+<?import javafx.scene.text.*?>
 
 <AnchorPane prefHeight="900.0" prefWidth="1072.0" style="-fx-background-color: #0E1525;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.votingveranda.VoterController">
     <padding>
@@ -27,7 +22,7 @@
                     </font>
                 </Label>
 
-                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                     <padding>
                         <Insets right="15.0" />
                     </padding>
@@ -42,10 +37,15 @@
                                                 <Font name="Arial Rounded MT Bold" size="18.0" />
                                             </font>
                                         </Label>
+                              <Button layoutX="374.0" layoutY="279.0" mnemonicParsing="false" onAction="#castVote" prefHeight="71.0" prefWidth="205.0" text="Cast Vote">
+                                 <font>
+                                    <Font name="System Bold" size="28.0" />
+                                 </font>
+                              </Button>
                                     </children>
                                 </AnchorPane>
 
-                                <VBox fx:id="chartsContainer" spacing="30.0" style="-fx-background-color: transparent;"/>
+                                <VBox fx:id="chartsContainer" spacing="30.0" style="-fx-background-color: transparent;" />
                             </children>
                         </VBox>
                     </content>
