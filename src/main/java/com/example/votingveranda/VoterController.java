@@ -24,7 +24,7 @@ public class VoterController {
         loadDashboard();
         viewStandings();
     }
-    public static void castVote(String[] args) {
+    public static void castVote(String[] args) {  "// Method for casting a vote"
         Scanner Candidate = new Scanner(System.in);
         System.out.print("Please insert name of Candidate you wish to vote for: ");
         while(true) {

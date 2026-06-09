@@ -37,7 +37,7 @@
                                                 <Font name="Arial Rounded MT Bold" size="18.0" />
                                             </font>
                                         </Label>
-                              <Button layoutX="374.0" layoutY="279.0" mnemonicParsing="false" onAction="#castVote" prefHeight="71.0" prefWidth="205.0" text="Cast Vote">
+                              <Button layoutX="374.0" layoutY="279.0" mnemonicParsing="false" onAction="#castVote" prefHeight="71.0" prefWidth="205.0" text="Cast Vote">  "// Method for casting a vote"
                                  <font>
                                     <Font name="System Bold" size="28.0" />
                                  </font>
