@@ -6,7 +6,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Region;
 
 import java.util.Scanner;
 
@@ -24,7 +23,9 @@ public class VoterController {
         loadDashboard();
         viewStandings();
     }
-    public static void castVote(String[] args) {  "// Method for casting a vote"
+
+    @FXML
+    public void castVote(ActionEvent event) {
         Scanner Candidate = new Scanner(System.in);
         System.out.print("Please insert name of Candidate you wish to vote for: ");
         while(true) {
