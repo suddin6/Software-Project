@@ -24,6 +24,7 @@ public class VoterController {
         viewStandings();
     }
 
+    // Method for casting votes
     @FXML
     public void castVote(ActionEvent event) {
         Scanner Candidate = new Scanner(System.in);
