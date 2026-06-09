@@ -7,6 +7,7 @@ import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 
+import javax.swing.*;
 import java.util.Scanner;
 
 public class VoterController {
@@ -25,26 +26,49 @@ public class VoterController {
     }
 
     // Method for casting votes
+
+
+    @FXML
+    // method used to initialize the candidate page
+    public void initialize() {
+        this.conn = DatabaseAPI.db_connection();
+    }
     @FXML
     public void castVote(ActionEvent event) {
-        Scanner Candidate = new Scanner(System.in);
-        System.out.print("Please insert name of Candidate you wish to vote for: ");
+
+        String Candidate = JOptionPane.showInputDialog(null,"Please insert name of Candidate you wish to vote for: ");
+        String first_name = "";
+        String last_name = "";
+        try {
+            String getPosQuery = "SELECT first_name, last_name FROM positions";
+            java.sql.Statement posSTMT = conn.createStatement();
+            java.sql.ResultSet posRS = posSTMT.executeQuery(getPosQuery);
+
+            while (posRS.next()) {
+                first_name = posRS.getInt("first_name");
+                last_name = posRS.getString("last_name");
+                String query = "SELECT CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes " +
+                        "FROM candidate c " +
+                        "INNER JOIN login l ON c.login_id = l.login_id " +
+                        "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
+                        "WHERE c.position_id = " + positionID + " " +
+                        "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party";
+                java.sql.Statement stmt = conn.createStatement();
+                java.sql.ResultSet rs = stmt.executeQuery(query);
+            }
+        }
         while(true) {
-            if (Candidate.nextInt() == candidate_id) {
-                String name = Candidate.nextLine();
-                System.out.println("You have voted for " + name);
+
+
+            if (Candidate == first_name) {
+
+                System.out.println("You have voted for " + first_name + " " + last_name);
                 votes_candidate_fk = votes_candidate_fk + 1;
                 break;
             } else {
                 System.out.println("Invalid candidate, please try again.");
             }
         }
-    }
-
-    @FXML
-    // method used to initialize the candidate page
-    public void initialize() {
-        this.conn = DatabaseAPI.db_connection();
     }
 
     private void loadDashboard() {
