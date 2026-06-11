@@ -1,22 +1,33 @@
 package com.example.votingveranda;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.control.*;
 import javafx.event.ActionEvent;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import javax.swing.*;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Optional;
 
 public class VoterController {
-    private java.sql.Connection conn = null;
+    private Connection conn = null;
     static int votes_candidate_fk = 0;
 
     private int currentUser;
     @FXML private Label voterName;
-    @FXML private javafx.scene.layout.VBox chartsContainer;
+    @FXML private VBox chartsContainer;
 
     public void setCurrentUser(int loginID) {
         this.currentUser = loginID;
@@ -34,10 +45,13 @@ public class VoterController {
     @FXML
     public void castVote(ActionEvent event) {
         String name = "";
-        String position = "";
+
         int selectedPosition = 1;
         int candidate_id = 0;
         int vote_status = 0;
+        Button voteButton = null;
+
+        JOptionPane.showMessageDialog(null, "Here are the current candidates,: " + selectedPosition + " has " + candidate_id + ", and " + (selectedPosition - 1) + " has " + candidate_id);
 
         String Candidate = JOptionPane.showInputDialog(null,"Please insert name of Candidate you wish to vote for: ");
         if (Candidate == null) { return; }
@@ -50,15 +64,16 @@ public class VoterController {
                     "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
                     "LEFT JOIN voter vo ON vo.login_id = ? " +
                     "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party, p.position_id, p.position_name, vo.vote_status";
-            java.sql.PreparedStatement stmt = conn.prepareStatement(query);
+            PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, currentUser);
-            java.sql.ResultSet rs = stmt.executeQuery();
+            ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 String dbName = rs.getString("c_name");
 
                 if (Candidate.trim().equalsIgnoreCase(dbName)) {
                     name = dbName;
+                    String position = JOptionPane.showInputDialog(null, "Please choose if you want to vote them for senator, or for president: ");
                     position = rs.getString("position_name");
                     candidate_id = rs.getInt("candidate_id");
                     vote_status = rs.getInt("vote_status");
@@ -72,7 +87,7 @@ public class VoterController {
         if (Candidate != null && Candidate.equalsIgnoreCase(name)) {
             String insertQuery = "INSERT INTO votes (voter_id, candidate_id) VALUES(?, ?)";
             try {
-                java.sql.PreparedStatement insertPS = conn.prepareStatement(insertQuery);
+                PreparedStatement insertPS = conn.prepareStatement(insertQuery);
                 insertPS.setInt(1, currentUser);
                 insertPS.setInt(2, candidate_id);
                 int rows = insertPS.executeUpdate();
@@ -80,6 +95,11 @@ public class VoterController {
                 if (rows > 0){
                     System.out.println("You have voted for " + name);
                     votes_candidate_fk = votes_candidate_fk + 1;
+                    vote_status = vote_status + 1;
+                    if (selectedPosition == 1){
+                        voteButton.setDisable(true);
+                    }
+
                     viewStandings();
                 }
             } catch (SQLException e) {
@@ -100,8 +120,8 @@ public class VoterController {
             String query = "SELECT l.first_name, l.last_name, v.vote_status FROM voter v " +
                     "INNER JOIN login l ON v.login_id = v.login_id " +
                     "WHERE l.login_id = " + currentUser;
-            java.sql.Statement stmt = conn.createStatement();
-            java.sql.ResultSet rs = stmt.executeQuery(query);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
 
             if (rs.next()) {
                 voterName.setText(rs.getString("first_name") + " " + rs.getString("last_name"));
@@ -118,7 +138,7 @@ public class VoterController {
 
     // method to view standings of candidates relative to position
     private void viewStandings() {
-        javafx.application.Platform.runLater(() -> {
+        Platform.runLater(() -> {
             chartsContainer.getChildren().clear();
 
             if (conn == null) {
@@ -130,8 +150,8 @@ public class VoterController {
 
             try {
                 String getPosQuery = "SELECT position_id, position_name FROM positions";
-                java.sql.Statement posSTMT = conn.createStatement();
-                java.sql.ResultSet posRS = posSTMT.executeQuery(getPosQuery);
+                Statement posSTMT = conn.createStatement();
+                ResultSet posRS = posSTMT.executeQuery(getPosQuery);
 
                 while (posRS.next()) {
                     positionID = posRS.getInt("position_id");
@@ -144,8 +164,8 @@ public class VoterController {
                             "WHERE c.position_id = " + positionID + " " +
                             "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party";
 
-                    java.sql.Statement stmt = conn.createStatement();
-                    java.sql.ResultSet rs = stmt.executeQuery(query);
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(query);
 
                     XYChart.Series<String, Number> demSeries = new XYChart.Series<>();
                     demSeries.setName("Democratic Party");
@@ -187,9 +207,9 @@ public class VoterController {
                             "-fx-padding: 20 0 10 0;");
                     chartsContainer.getChildren().add(sectionTitle);
 
-                    javafx.scene.chart.CategoryAxis xAxis = new javafx.scene.chart.CategoryAxis();
-                    javafx.scene.chart.NumberAxis yAxis = new javafx.scene.chart.NumberAxis();
-                    yAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+                    CategoryAxis xAxis = new CategoryAxis();
+                    NumberAxis yAxis = new NumberAxis();
+                    yAxis.setTickLabelFill(Color.web("#dfc07d"));
 
                     StackedBarChart<String, Number> chart = new StackedBarChart<>(xAxis, yAxis);
                     chart.setHorizontalGridLinesVisible(true);
@@ -197,12 +217,12 @@ public class VoterController {
 
                     chart.lookup(".chart-plot-background").setStyle("-fx-background-color: #f4f4f4;");
 
-                    javafx.scene.Node lines = chart.lookup(".chart-horizontal-grid-lines");
+                    Node lines = chart.lookup(".chart-horizontal-grid-lines");
                     if (lines != null) {
                         lines.setStyle("-fx-stroke: #e0e0e0; -fx-stroke-dash-array: 2 2;");
                     }
 
-                    javafx.scene.Node Vlines = chart.lookup(".chart-vertical-grid-lines");
+                    Node Vlines = chart.lookup(".chart-vertical-grid-lines");
                     if (Vlines != null) {
                         Vlines.setStyle("-fx-stroke: #e0e0e0; -fx-stroke-dash-array: 2 2;");
                     }
@@ -220,8 +240,8 @@ public class VoterController {
                                     + "CHART_COLOR_3: #34a853;"
                     );
 
-                    xAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
-                    yAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+                    xAxis.setTickLabelFill(Color.web("#dfc07d"));
+                    yAxis.setTickLabelFill(Color.web("#dfc07d"));
 
                     if (demSeries.getData().size() > 0) {
                         chart.getData().add(demSeries);
@@ -255,9 +275,9 @@ public class VoterController {
                         }
                     }
 
-                    javafx.scene.Node legend = chart.lookup(".chart-legend");
-                    if (legend instanceof javafx.scene.layout.Region) {
-                        javafx.scene.layout.Region legReg = (javafx.scene.layout.Region) legend;
+                    Node legend = chart.lookup(".chart-legend");
+                    if (legend instanceof Region) {
+                        Region legReg = (Region) legend;
 
                         legReg.setStyle("-fx-alignment: CENTER; "
                                 + "-fx-background-color: transparent; "
@@ -268,7 +288,7 @@ public class VoterController {
                                 + "-fx-text-fill: #dfc07d"
                         );
 
-                        for (javafx.scene.Node label : legReg.lookupAll(".chart-legend-item-label")) {
+                        for (Node label : legReg.lookupAll(".chart-legend-item-label")) {
                             label.setStyle("-fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-text-fill: #dfc07d;");
                         }
                     }
@@ -294,8 +314,8 @@ public class VoterController {
             String query = "SELECT l.first_name, l.last_name, l.l_username, v.ssn, v.voter_id, v.vote_status " +
                            "FROM login l LEFT JOIN voter v ON l.login_id = v.login_id " +
                            "WHERE l.login_id = " + currentUser;
-            java.sql.PreparedStatement ps = conn.prepareStatement(query);
-            java.sql.ResultSet rs = ps.executeQuery();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
                 voterFullName = rs.getString("first_name") + " " + rs.getString("last_name");
@@ -316,52 +336,52 @@ public class VoterController {
         }
 
         // profile dialog pop-up window
-        javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
+        Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Voter Profile");
 
         // hidden close button (only exit through X on top of pop-up)
-        dialog.getDialogPane().getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
-        javafx.scene.Node closeBtn = dialog.getDialogPane().lookupButton(javafx.scene.control.ButtonType.CLOSE);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        Node closeBtn = dialog.getDialogPane().lookupButton(ButtonType.CLOSE);
         if (closeBtn != null) {
             closeBtn.managedProperty().bind(closeBtn.visibleProperty());
             closeBtn.setVisible(false);
         }
 
-        javafx.scene.control.Label nameLabel     = new javafx.scene.control.Label(voterFullName);
-        javafx.scene.control.Label usernameLabel = new javafx.scene.control.Label(voterUsername);
-        javafx.scene.control.Label ssnLabel       = new javafx.scene.control.Label("SSN: " + ssn);
-        javafx.scene.control.Label roleLabel     = new javafx.scene.control.Label("Role: Registered Voter");
-        javafx.scene.control.Label idLabel       = new javafx.scene.control.Label("Voter ID: " + voterId);
-        javafx.scene.control.Label statusLabel       = new javafx.scene.control.Label("Vote Status: " + voteStatusText);
+        Label nameLabel     = new Label(voterFullName);
+        Label usernameLabel = new Label(voterUsername);
+        Label ssnLabel       = new Label("SSN: " + ssn);
+        Label roleLabel     = new Label("Role: Registered Voter");
+        Label idLabel       = new Label("Voter ID: " + voterId);
+        Label statusLabel       = new Label("Vote Status: " + voteStatusText);
 
-        javafx.scene.control.Button editProfileBtn = new javafx.scene.control.Button("Edit Profile");
-        javafx.scene.control.Button logOutBtn      = new javafx.scene.control.Button("Log Out");
+        Button editProfileBtn = new Button("Edit Profile");
+        Button logOutBtn      = new Button("Log Out");
 
         final String currentName     = voterFullName;
         final String currentUsername = voterUsername;
 
         // edit profile button actions 
         editProfileBtn.setOnAction(e -> {
-            javafx.scene.control.TextInputDialog firstNameDialog = new javafx.scene.control.TextInputDialog(currentName.split(" ")[0]);
+            TextInputDialog firstNameDialog = new TextInputDialog(currentName.split(" ")[0]);
             firstNameDialog.setTitle("Edit First Name");
             firstNameDialog.setHeaderText("Enter New First Name:");
-            java.util.Optional<String> firstNameResult = firstNameDialog.showAndWait();
+            Optional<String> firstNameResult = firstNameDialog.showAndWait();
 
-            javafx.scene.control.TextInputDialog lastNameDialog = new javafx.scene.control.TextInputDialog(currentName.contains(" ") ? currentName.split(" ", 2)[1] : "");
+            TextInputDialog lastNameDialog = new TextInputDialog(currentName.contains(" ") ? currentName.split(" ", 2)[1] : "");
             lastNameDialog.setTitle("Edit Last Name");
             lastNameDialog.setHeaderText("Enter New Last Name:");
-            java.util.Optional<String> lastNameResult = lastNameDialog.showAndWait();
+            Optional<String> lastNameResult = lastNameDialog.showAndWait();
 
-            javafx.scene.control.TextInputDialog usernameDialog = new javafx.scene.control.TextInputDialog(currentUsername);
+            TextInputDialog usernameDialog = new TextInputDialog(currentUsername);
             usernameDialog.setTitle("Edit Username");
             usernameDialog.setHeaderText("Enter New Username:");
-            java.util.Optional<String> usernameResult = usernameDialog.showAndWait();
+            Optional<String> usernameResult = usernameDialog.showAndWait();
 
             if (firstNameResult.isPresent() && lastNameResult.isPresent() && usernameResult.isPresent()) {
                 try {
                     String updateQuery = "UPDATE login SET first_name = ?, last_name = ?, l_username = ? " +
                                         "WHERE login_id = ?";
-                    try (java.sql.PreparedStatement ps = conn.prepareStatement(updateQuery)) {
+                    try (PreparedStatement ps = conn.prepareStatement(updateQuery)) {
                         ps.setString(1, firstNameResult.get());
                         ps.setString(2, lastNameResult.get());
                         ps.setString(3, usernameResult.get());
@@ -374,7 +394,7 @@ public class VoterController {
                     loadDashboard();
 
                     dialog.close();
-                    javafx.application.Platform.runLater(() -> goToProfile(actionEvent));
+                    Platform.runLater(() -> goToProfile(actionEvent));
 
                 } catch (Exception err) {
                     err.printStackTrace();
@@ -385,16 +405,16 @@ public class VoterController {
         // log out button actions
         logOutBtn.setOnAction(e -> {
             dialog.close();
-            javafx.stage.Stage stage = (javafx.stage.Stage) chartsContainer.getScene().getWindow();
+            Stage stage = (Stage) chartsContainer.getScene().getWindow();
             stage.close();
         });
 
         // UI for dialog, buttons, and text labels
-        javafx.scene.layout.VBox profileLayout = new javafx.scene.layout.VBox(15);
-        profileLayout.setPadding(new javafx.geometry.Insets(20));
+        VBox profileLayout = new VBox(15);
+        profileLayout.setPadding(new Insets(20));
         profileLayout.setPrefWidth(500);
         profileLayout.setPrefHeight(380);
-        profileLayout.setAlignment(javafx.geometry.Pos.CENTER);
+        profileLayout.setAlignment(Pos.CENTER);
 
         nameLabel.setStyle("-fx-text-fill: #549892; -fx-font-size: 28px; -fx-font-weight: bold;");
         usernameLabel.setStyle("-fx-text-fill: #dfc07d; -fx-font-size: 14px;");
@@ -407,8 +427,8 @@ public class VoterController {
         logOutBtn.setStyle("-fx-background-color: #ea4335; -fx-font-size: 18px; -fx-text-fill: white; " +
                            "-fx-font-weight: bold; -fx-min-width: 180px; -fx-min-height: 35px; -fx-cursor: hand;");
 
-        javafx.scene.layout.VBox.setMargin(nameLabel, new javafx.geometry.Insets(0, 0, -5, 0));
-        javafx.scene.layout.VBox.setMargin(statusLabel, new javafx.geometry.Insets(0, 0, 15, 0));
+        VBox.setMargin(nameLabel, new Insets(0, 0, -5, 0));
+        VBox.setMargin(statusLabel, new Insets(0, 0, 15, 0));
         profileLayout.getChildren().addAll(nameLabel, usernameLabel, ssnLabel, roleLabel, idLabel, statusLabel, editProfileBtn, logOutBtn);
 
         dialog.getDialogPane().setContent(profileLayout);
