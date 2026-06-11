@@ -67,8 +67,6 @@ public class CandidateController {
 
     // method to view standings of candidates relative to position
     private void viewStandings() {
-        candidateStandings.getData().clear();
-
         if (conn == null) {
             return;
         }
@@ -130,85 +128,91 @@ public class CandidateController {
                 }
             }
 
-            if (demSeries.getData().size() > 0) {
-                candidateStandings.getData().add(demSeries);
-            }
+            javafx.application.Platform.runLater(() -> {
+                candidateStandings.getData().clear();
 
-            if (repSeries.getData().size() > 0) {
-                candidateStandings.getData().add(repSeries);
-            }
+                if (demSeries.getData().size() > 0) {
+                    candidateStandings.getData().add(demSeries);
+                }
 
-            if (greenSeries.getData().size() >0) {
-                candidateStandings.getData().add(greenSeries);
-            }
+                if (repSeries.getData().size() > 0) {
+                    candidateStandings.getData().add(repSeries);
+                }
 
+                if (greenSeries.getData().size() > 0) {
+                    candidateStandings.getData().add(greenSeries);
+                }
+
+                candidateStandings.setPrefHeight(Region.USE_COMPUTED_SIZE);
+                candidateStandings.setPrefWidth(Region.USE_COMPUTED_SIZE);
+                candidateStandings.setMinHeight(275);
+
+                candidateStandings.setAnimated(false);
+                candidateStandings.setCategoryGap(0);
+
+                candidateStandings.setStyle(
+                        "-fx-background-color: transparent; "
+                                + "-fx-font-size: 13px; "
+                                + "-fx-text-fill: #dfc07d; "
+                                + "-fx-text-background-color: #dfc07d; "
+                                + "CHART_COLOR_1: #1a73e8; "
+                                + "CHART_COLOR_2: #ea4335; "
+                                + "CHART_COLOR_3: #34a853;"
+                                + "-fx-bar-width: 35px"
+                );
+
+                for (int i = 0; i < candidateStandings.getData().size(); i++) {
+                    XYChart.Series<String, Number> series = candidateStandings.getData().get(i);
+                    String barColor = "-fx-bar-fill: #dfc07d";
+
+                    if ("Democratic Party".equals(series.getName())) {
+                        barColor = "-fx-bar-fill: #1a73e8";
+                    } else if ("Republican Party".equals(series.getName())) {
+                        barColor = "-fx-bar-fill: #ea4335";
+                    } else if ("Green Party".equals(series.getName())) {
+                        barColor = "-fx-bar-fill: #34a853";
+                    }
+
+                    for (XYChart.Data<String, Number> data : series.getData()) {
+                        if (data.getNode() != null) {
+                            data.getNode().setStyle(barColor);
+                        }
+                    }
+                }
+
+                // UI for the legend of Standings chart
+                javafx.scene.Node legend = candidateStandings.lookup(".chart-legend");
+                if (legend instanceof javafx.scene.layout.Region) {
+                    javafx.scene.layout.Region legReg = (javafx.scene.layout.Region) legend;
+                    legReg.setPrefWidth(Region.USE_COMPUTED_SIZE);
+                    legReg.setMinWidth(600);
+
+                    legReg.setStyle("-fx-alignment: CENTER; "
+                            + "-fx-background-color: transparent; "
+                            + "-fx-hgap: 30px; "
+                            + "-fx-vgap: 0px; "
+                            + "-fx-font-family: 'Arial Rounded MT Bold'; "
+                            + "-fx-font-size: 14px; "
+                            + "-fx-text-fill: #dfc07d"
+                    );
+
+                    for (javafx.scene.Node label : legReg.lookupAll(".chart-legend-item-label")) {
+                        label.setStyle("-fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-text-fill: #dfc07d;");
+
+                    }
+                }
+                candidateStandings.getXAxis().setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+                candidateStandings.getYAxis().setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+            });
         } catch (Exception e) {
             System.out.println("Error for standings: " + e.getMessage());
             e.printStackTrace();
         }
+    }
 
-        candidateStandings.setPrefHeight(Region.USE_COMPUTED_SIZE);
-        candidateStandings.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        candidateStandings.setMinHeight(275);
-
-        candidateStandings.setCategoryGap(0);
-
-        candidateStandings.setStyle(
-                "-fx-background-color: transparent; "
-                + "-fx-font-size: 13px; "
-                + "-fx-text-fill: #dfc07d; "
-                + "-fx-text-background-color: #dfc07d; "
-                + "CHART_COLOR_1: #1a73e8; "
-                + "CHART_COLOR_2: #ea4335; "
-                + "CHART_COLOR_3: #34a853;"
-                + "-fx-bar-width: 35px"
-        );
-
-        javafx.application.Platform.runLater(() -> {
-            for (int i = 0; i < candidateStandings.getData().size(); i++) {
-                XYChart.Series<String, Number> series = candidateStandings.getData().get(i);
-                String barColor = "-fx-bar-fill: #dfc07d";
-
-                if ("Democratic Party".equals(series.getName())) {
-                    barColor = "-fx-bar-fill: #1a73e8";
-                } else if ("Republican Party".equals(series.getName())) {
-                    barColor = "-fx-bar-fill: #ea4335";
-                } else if ("Green Party".equals(series.getName())) {
-                    barColor = "-fx-bar-fill: #34a853";
-                }
-
-                for (XYChart.Data<String, Number> data : series.getData()) {
-                    if (data.getNode() != null) {
-                        data.getNode().setStyle(barColor);
-                    }
-                }
-            }
-        });
-
-        // UI for the legend of Standings chart
-        javafx.scene.Node legend = candidateStandings.lookup(".chart-legend");
-        if (legend instanceof javafx.scene.layout.Region) {
-            javafx.scene.layout.Region legReg = (javafx.scene.layout.Region) legend;
-            legReg.setPrefWidth(Region.USE_COMPUTED_SIZE);
-            legReg.setMinWidth(600);
-
-            legReg.setStyle("-fx-alignment: CENTER; "
-                    + "-fx-background-color: transparent; "
-                    + "-fx-hgap: 30px; "
-                    + "-fx-vgap: 0px; "
-                    + "-fx-font-family: 'Arial Rounded MT Bold'; "
-                    + "-fx-font-size: 14px; "
-                    + "-fx-text-fill: #dfc07d"
-            );
-
-            for (javafx.scene.Node label : legReg.lookupAll(".chart-legend-item-label")) {
-                label.setStyle("-fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-text-fill: #dfc07d;");
-
-            }
-        }
-
-        candidateStandings.getXAxis().setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
-        candidateStandings.getYAxis().setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+    @FXML
+    public void handleRefresh(ActionEvent event) {
+        viewStandings();
     }
 
     // method used for campaign changes

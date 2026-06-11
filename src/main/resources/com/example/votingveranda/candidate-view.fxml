@@ -84,5 +84,13 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </Button>
+      <Button fx:id="refresh" layoutX="40.0" layoutY="38.0" mnemonicParsing="false" onAction="#handleRefresh" style="-fx-background-color: #dfc07d; -fx-border-radius: 30; -fx-border-color: black; -fx-background-radius: 30;" text="⟳">
+         <font>
+            <Font size="24.0" />
+         </font>
+          <cursor>
+              <Cursor fx:constant="HAND" />
+          </cursor>
+      </Button>
    </children>
 </AnchorPane>

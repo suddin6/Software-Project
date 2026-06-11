@@ -89,11 +89,11 @@ public class AdminController {
             while (rs.next()) {
                 count++;
                 // FIX: spacing aligned to 14 visual chars per label
-                output.append("𝐕𝐨𝐭𝐞𝐫 𝐈𝐃:     ").append(rs.getInt("voter_id")).append("\n");
-                output.append("𝐍𝐚𝐦𝐞:         ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
-                output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞:     ").append(rs.getString("l_username")).append("\n");
-                output.append("𝐒𝐒𝐍:          ").append(rs.getString("ssn")).append("\n");
-                output.append("𝐕𝐨𝐭𝐞 𝐒𝐭𝐚𝐭𝐮𝐬:  ").append(rs.getBoolean("vote_status") ? "Voted" : "Has Not Voted").append("\n");
+                output.append("𝐕𝐨𝐭𝐞𝐫 𝐈𝐃: ").append(rs.getInt("voter_id")).append("\n");
+                output.append("𝐍𝐚𝐦𝐞: ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
+                output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞: ").append(rs.getString("l_username")).append("\n");
+                output.append("𝐒𝐒𝐍: ").append(rs.getString("ssn")).append("\n");
+                output.append("𝐕𝐨𝐭𝐞 𝐒𝐭𝐚𝐭𝐮𝐬: ").append(rs.getBoolean("vote_status") ? "Voted" : "Has Not Voted").append("\n");
                 output.append("\n------------------------------------\n\n");
             }
             if (count == 0) output.append("No voters found.\n");
@@ -130,12 +130,12 @@ public class AdminController {
                 count++;
                 String campaign = rs.getString("campaign");
                 // FIX: spacing aligned to 15 visual chars per label
-                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃:  ").append(rs.getInt("candidate_id")).append("\n");
-                output.append("𝐍𝐚𝐦𝐞:          ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
-                output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞:      ").append(rs.getString("l_username")).append("\n");
-                output.append("𝐏𝐚𝐫𝐭𝐲:         ").append(rs.getString("party")).append("\n");
-                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧:      ").append(rs.getString("position_name")).append("\n");
-                output.append("𝐂𝐚𝐦𝐩𝐚𝐢𝐠𝐧:      ").append(campaign != null ? campaign : "N/A").append("\n");
+                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃: ").append(rs.getInt("candidate_id")).append("\n");
+                output.append("𝐍𝐚𝐦𝐞: ").append(rs.getString("first_name")).append(" ").append(rs.getString("last_name")).append("\n");
+                output.append("𝐔𝐬𝐞𝐫𝐧𝐚𝐦𝐞: ").append(rs.getString("l_username")).append("\n");
+                output.append("𝐏𝐚𝐫𝐭𝐲: ").append(rs.getString("party")).append("\n");
+                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧: ").append(rs.getString("position_name")).append("\n");
+                output.append("𝐂𝐚𝐦𝐩𝐚𝐢𝐠𝐧: ").append(campaign != null ? campaign : "N/A").append("\n");
                 output.append("\n------------------------------------\n\n");
             }
             if (count == 0) output.append("No candidates found.\n");
@@ -175,11 +175,11 @@ public class AdminController {
                 rank++;
                 // FIX: spacing aligned to 15 visual chars per label
                 output.append("𝐑𝐚𝐧𝐤 #").append(rank).append("\n");
-                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃:  ").append(rs.getInt("candidate_id")).append("\n");
-                output.append("𝐍𝐚𝐦𝐞:          ").append(rs.getString("candidate_name")).append("\n");
-                output.append("𝐏𝐚𝐫𝐭𝐲:         ").append(rs.getString("party")).append("\n");
-                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧:      ").append(rs.getString("position_name")).append("\n");
-                output.append("𝐓𝐨𝐭𝐚𝐥 𝐕𝐨𝐭𝐞𝐬:   ").append(rs.getInt("total_votes")).append("\n");
+                output.append("𝐂𝐚𝐧𝐝𝐢𝐝𝐚𝐭𝐞 𝐈𝐃: ").append(rs.getInt("candidate_id")).append("\n");
+                output.append("𝐍𝐚𝐦𝐞: ").append(rs.getString("candidate_name")).append("\n");
+                output.append("𝐏𝐚𝐫𝐭𝐲: ").append(rs.getString("party")).append("\n");
+                output.append("𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧: ").append(rs.getString("position_name")).append("\n");
+                output.append("𝐓𝐨𝐭𝐚𝐥 𝐕𝐨𝐭𝐞𝐬: ").append(rs.getInt("total_votes")).append("\n");
                 output.append("\n------------------------------------\n\n");
             }
             if (rank == 0) output.append("No vote data found.\n");

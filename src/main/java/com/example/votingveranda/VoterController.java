@@ -8,12 +8,11 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 
 import javax.swing.*;
-import java.util.Scanner;
+import java.sql.SQLException;
 
 public class VoterController {
     private java.sql.Connection conn = null;
     static int votes_candidate_fk = 0;
-    static int candidate_id = 1;
 
     private int currentUser;
     @FXML private Label voterName;
@@ -25,49 +24,68 @@ public class VoterController {
         viewStandings();
     }
 
-    // Method for casting votes
-
-
     @FXML
     // method used to initialize the candidate page
     public void initialize() {
         this.conn = DatabaseAPI.db_connection();
     }
+
     @FXML
     public void castVote(ActionEvent event) {
+        String name = "";
+        String position = "";
+        int selectedPosition = 1;
+        int candidate_id = 0;
+        int vote_status = 0;
 
         String Candidate = JOptionPane.showInputDialog(null,"Please insert name of Candidate you wish to vote for: ");
-        String first_name = "";
-        String last_name = "";
+        if (Candidate == null) { return; }
+
         try {
-            String getPosQuery = "SELECT first_name, last_name FROM positions";
-            java.sql.Statement posSTMT = conn.createStatement();
-            java.sql.ResultSet posRS = posSTMT.executeQuery(getPosQuery);
+            String query = "SELECT c.candidate_id, CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes, p.position_id, p.position_name, vo.vote_status " +
+                    "FROM candidate c " +
+                    "INNER JOIN login l ON c.login_id = l.login_id " +
+                    "INNER JOIN positions p ON c.position_id = p.position_id " +
+                    "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
+                    "LEFT JOIN voter vo ON vo.login_id = ? " +
+                    "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party, p.position_id, p.position_name, vo.vote_status";
+            java.sql.PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, currentUser);
+            java.sql.ResultSet rs = stmt.executeQuery();
 
-            while (posRS.next()) {
-                first_name = posRS.getInt("first_name");
-                last_name = posRS.getString("last_name");
-                String query = "SELECT CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes " +
-                        "FROM candidate c " +
-                        "INNER JOIN login l ON c.login_id = l.login_id " +
-                        "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
-                        "WHERE c.position_id = " + positionID + " " +
-                        "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party";
-                java.sql.Statement stmt = conn.createStatement();
-                java.sql.ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                String dbName = rs.getString("c_name");
+
+                if (Candidate.trim().equalsIgnoreCase(dbName)) {
+                    name = dbName;
+                    position = rs.getString("position_name");
+                    candidate_id = rs.getInt("candidate_id");
+                    vote_status = rs.getInt("vote_status");
+                    break;
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        while(true) {
 
+        if (Candidate != null && Candidate.equalsIgnoreCase(name)) {
+            String insertQuery = "INSERT INTO votes (voter_id, candidate_id) VALUES(?, ?)";
+            try {
+                java.sql.PreparedStatement insertPS = conn.prepareStatement(insertQuery);
+                insertPS.setInt(1, currentUser);
+                insertPS.setInt(2, candidate_id);
+                int rows = insertPS.executeUpdate();
 
-            if (Candidate == first_name) {
-
-                System.out.println("You have voted for " + first_name + " " + last_name);
-                votes_candidate_fk = votes_candidate_fk + 1;
-                break;
-            } else {
-                System.out.println("Invalid candidate, please try again.");
+                if (rows > 0){
+                    System.out.println("You have voted for " + name);
+                    votes_candidate_fk = votes_candidate_fk + 1;
+                    viewStandings();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+        } else {
+            System.out.println("Invalid candidate, please try again.");
         }
     }
 
@@ -99,111 +117,125 @@ public class VoterController {
 
     // method to view standings of candidates relative to position
     private void viewStandings() {
-        chartsContainer.getChildren().clear();
+        javafx.application.Platform.runLater(() -> {
+            chartsContainer.getChildren().clear();
 
-        if (conn == null) {
-            return;
-        }
+            if (conn == null) {
+                return;
+            }
 
-        int positionID = -1;
-        String positionName = "";
+            int positionID = -1;
+            String positionName = "";
 
-        try {
-            String getPosQuery = "SELECT position_id, position_name FROM positions";
-            java.sql.Statement posSTMT = conn.createStatement();
-            java.sql.ResultSet posRS = posSTMT.executeQuery(getPosQuery);
+            try {
+                String getPosQuery = "SELECT position_id, position_name FROM positions";
+                java.sql.Statement posSTMT = conn.createStatement();
+                java.sql.ResultSet posRS = posSTMT.executeQuery(getPosQuery);
 
-            while (posRS.next()) {
-                positionID = posRS.getInt("position_id");
-                positionName = posRS.getString("position_name");
+                while (posRS.next()) {
+                    positionID = posRS.getInt("position_id");
+                    positionName = posRS.getString("position_name");
 
-                String query = "SELECT CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes " +
-                        "FROM candidate c " +
-                        "INNER JOIN login l ON c.login_id = l.login_id " +
-                        "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
-                        "WHERE c.position_id = " + positionID + " " +
-                        "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party";
+                    String query = "SELECT CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes " +
+                            "FROM candidate c " +
+                            "INNER JOIN login l ON c.login_id = l.login_id " +
+                            "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
+                            "WHERE c.position_id = " + positionID + " " +
+                            "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party";
 
-                java.sql.Statement stmt = conn.createStatement();
-                java.sql.ResultSet rs = stmt.executeQuery(query);
+                    java.sql.Statement stmt = conn.createStatement();
+                    java.sql.ResultSet rs = stmt.executeQuery(query);
 
-                XYChart.Series<String, Number> demSeries = new XYChart.Series<>();
-                demSeries.setName("Democratic Party");
+                    XYChart.Series<String, Number> demSeries = new XYChart.Series<>();
+                    demSeries.setName("Democratic Party");
 
-                XYChart.Series<String, Number> repSeries = new XYChart.Series<>();
-                repSeries.setName("Republican Party");
+                    XYChart.Series<String, Number> repSeries = new XYChart.Series<>();
+                    repSeries.setName("Republican Party");
 
-                XYChart.Series<String, Number> greenSeries = new XYChart.Series<>();
-                greenSeries.setName("Green Party");
+                    XYChart.Series<String, Number> greenSeries = new XYChart.Series<>();
+                    greenSeries.setName("Green Party");
 
-                boolean dataPresent = false;
+                    boolean dataPresent = false;
 
-                while (rs.next()) {
-                    dataPresent = true;
+                    while (rs.next()) {
+                        dataPresent = true;
 
-                    String name = rs.getString("c_name");
-                    String party= rs.getString("party");
-                    int votes = rs.getInt("total_votes");
+                        String name = rs.getString("c_name");
+                        String party = rs.getString("party");
+                        int votes = rs.getInt("total_votes");
 
-                    if ("Democrat".equalsIgnoreCase(party)) {
-                        demSeries.getData().add(new XYChart.Data<>(name, votes));
-                    } else if ("Republican".equalsIgnoreCase(party)) {
-                        repSeries.getData().add(new XYChart.Data<>(name, votes));
-                    } else if ("Green Party".equalsIgnoreCase(party)) {
-                        greenSeries.getData().add(new XYChart.Data<>(name, votes));
+                        if ("Democrat".equalsIgnoreCase(party)) {
+                            demSeries.getData().add(new XYChart.Data<>(name, votes));
+                        } else if ("Republican".equalsIgnoreCase(party)) {
+                            repSeries.getData().add(new XYChart.Data<>(name, votes));
+                        } else if ("Green Party".equalsIgnoreCase(party)) {
+                            greenSeries.getData().add(new XYChart.Data<>(name, votes));
+                        }
                     }
-                }
 
-                if (!dataPresent) {
-                    continue;
-                }
+                    if (!dataPresent) {
+                        continue;
+                    }
 
-                Label sectionTitle = new Label(positionName + " Standings");
-                sectionTitle.setMaxWidth(Double.MAX_VALUE);
-                sectionTitle.setStyle("-fx-alignment: CENTER; " +
-                                        "-fx-text-fill: #dfc07d; " +
-                                        "-fx-font-family: 'Arial Rounded MT Bold'; " +
-                                        "-fx-font-size: 20px; " +
-                                        "-fx-padding: 20 0 10 0;");
-                chartsContainer.getChildren().add(sectionTitle);
+                    Label sectionTitle = new Label(positionName + " Standings");
+                    sectionTitle.setMaxWidth(Double.MAX_VALUE);
+                    sectionTitle.setStyle("-fx-alignment: CENTER; " +
+                            "-fx-text-fill: #dfc07d; " +
+                            "-fx-font-family: 'Arial Rounded MT Bold'; " +
+                            "-fx-font-size: 20px; " +
+                            "-fx-padding: 20 0 10 0;");
+                    chartsContainer.getChildren().add(sectionTitle);
 
-                javafx.scene.chart.CategoryAxis xAxis = new javafx.scene.chart.CategoryAxis();
-                javafx.scene.chart.NumberAxis yAxis = new javafx.scene.chart.NumberAxis();
-                yAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+                    javafx.scene.chart.CategoryAxis xAxis = new javafx.scene.chart.CategoryAxis();
+                    javafx.scene.chart.NumberAxis yAxis = new javafx.scene.chart.NumberAxis();
+                    yAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
 
-                StackedBarChart<String, Number> chart = new StackedBarChart<>(xAxis, yAxis);
-                chart.setPrefHeight(320);
-                chart.setAnimated(false);
-                chart.setCategoryGap(20);
-                chart.setStyle(
-                        "-fx-background-color: transparent; "
-                                + "-fx-font-size: 13px; "
-                                + "-fx-text-fill: #dfc07d; "
-                                + "-fx-text-background-color: #dfc07d; "
-                                + "CHART_COLOR_1: #1a73e8; "
-                                + "CHART_COLOR_2: #ea4335; "
-                                + "CHART_COLOR_3: #34a853;"
-                                + "-fx-bar-width: 35px"
-                );
+                    StackedBarChart<String, Number> chart = new StackedBarChart<>(xAxis, yAxis);
+                    chart.setHorizontalGridLinesVisible(true);
+                    chart.setVerticalGridLinesVisible(true);
 
-                xAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
-                yAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+                    chart.lookup(".chart-plot-background").setStyle("-fx-background-color: #f4f4f4;");
 
-                if (demSeries.getData().size() > 0) {
-                    chart.getData().add(demSeries);
-                }
+                    javafx.scene.Node lines = chart.lookup(".chart-horizontal-grid-lines");
+                    if (lines != null) {
+                        lines.setStyle("-fx-stroke: #e0e0e0; -fx-stroke-dash-array: 2 2;");
+                    }
 
-                if (repSeries.getData().size() > 0) {
-                    chart.getData().add(repSeries);
-                }
+                    javafx.scene.Node Vlines = chart.lookup(".chart-vertical-grid-lines");
+                    if (Vlines != null) {
+                        Vlines.setStyle("-fx-stroke: #e0e0e0; -fx-stroke-dash-array: 2 2;");
+                    }
 
-                if (greenSeries.getData().size() >0) {
-                    chart.getData().add(greenSeries);
-                }
+                    chart.setPrefHeight(320);
+                    chart.setAnimated(false);
+                    chart.setCategoryGap(0);
+                    chart.setStyle(
+                            "-fx-background-color: transparent; "
+                                    + "-fx-font-size: 13px; "
+                                    + "-fx-text-fill: #dfc07d; "
+                                    + "-fx-text-background-color: #dfc07d; "
+                                    + "CHART_COLOR_1: #1a73e8; "
+                                    + "CHART_COLOR_2: #ea4335; "
+                                    + "CHART_COLOR_3: #34a853;"
+                    );
 
-                chartsContainer.getChildren().add(chart);
+                    xAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
+                    yAxis.setTickLabelFill(javafx.scene.paint.Color.web("#dfc07d"));
 
-                javafx.application.Platform.runLater(() -> {
+                    if (demSeries.getData().size() > 0) {
+                        chart.getData().add(demSeries);
+                    }
+
+                    if (repSeries.getData().size() > 0) {
+                        chart.getData().add(repSeries);
+                    }
+
+                    if (greenSeries.getData().size() > 0) {
+                        chart.getData().add(greenSeries);
+                    }
+
+                    chartsContainer.getChildren().add(chart);
+
                     for (XYChart.Series<String, Number> series : chart.getData()) {
                         String barColor = "-fx-bar-fill: #dfc07d";
 
@@ -239,13 +271,13 @@ public class VoterController {
                             label.setStyle("-fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-text-fill: #dfc07d;");
                         }
                     }
-                });
+                }
+            } catch (Exception error) {
+                System.out.println("Error finding position: " + error.getMessage());
+                error.printStackTrace();
+                return;
             }
-        } catch (Exception error) {
-            System.out.println("Error finding position: " + error.getMessage());
-            error.printStackTrace();
-            return;
-        }
+        });
     }
 
     @FXML
