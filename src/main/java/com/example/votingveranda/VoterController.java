@@ -45,6 +45,7 @@ public class VoterController {
     @FXML
     public void castVote(ActionEvent event) {
         String name = "";
+        String campaign = "";
 
         int selectedPosition = 1;
         int candidate_id = 0;
@@ -57,13 +58,13 @@ public class VoterController {
         if (Candidate == null) { return; }
 
         try {
-            String query = "SELECT c.candidate_id, CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes, p.position_id, p.position_name, vo.vote_status " +
+            String query = "SELECT c.candidate_id, c.campaign, CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes, p.position_id, p.position_name, vo.vote_status " +
                     "FROM candidate c " +
                     "INNER JOIN login l ON c.login_id = l.login_id " +
                     "INNER JOIN positions p ON c.position_id = p.position_id " +
                     "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
                     "LEFT JOIN voter vo ON vo.login_id = ? " +
-                    "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party, p.position_id, p.position_name, vo.vote_status";
+                    "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party, c.campaign, p.position_id, p.position_name, vo.vote_status";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, currentUser);
             ResultSet rs = stmt.executeQuery();
@@ -77,6 +78,7 @@ public class VoterController {
                     position = rs.getString("position_name");
                     candidate_id = rs.getInt("candidate_id");
                     vote_status = rs.getInt("vote_status");
+                    campaign = rs.getString("campaign");
                     break;
                 }
             }
