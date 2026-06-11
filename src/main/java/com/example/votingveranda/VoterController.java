@@ -50,7 +50,6 @@ public class VoterController {
         int selectedPosition = 1;
         int candidate_id = 0;
         int vote_status = 0;
-        Button voteButton = null;
 
         JOptionPane.showMessageDialog(null, "Here are the current candidates,: " + selectedPosition + " has " + candidate_id + ", and " + (selectedPosition - 1) + " has " + candidate_id);
 
@@ -99,6 +98,7 @@ public class VoterController {
                     votes_candidate_fk = votes_candidate_fk + 1;
                     vote_status = vote_status + 1;
                     if (selectedPosition == 1){
+                        Button voteButton = null;
                         voteButton.setDisable(true);
                     }
 
