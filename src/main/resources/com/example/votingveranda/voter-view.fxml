@@ -21,6 +21,14 @@
                         <Font name="Bell MT Bold" size="48.0" />
                     </font>
                 </Label>
+                        <Button fx:id="voteButton" mnemonicParsing="false" onAction="#castVote" prefHeight="58.0" prefWidth="188.0" minHeight="58.0" minWidth="188.0" maxHeight="58.0" maxWidth="188.0" style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-background-insets: 0; -fx-border-color: black; -fx-border-width: 1; -fx-border-radius: 12; -fx-font-size: 20;" text="Cast Vote">
+                           <font>
+                              <Font name="System Bold" />
+                           </font>
+                            <cursor>
+                                <Cursor fx:constant="HAND" />
+                            </cursor>
+                        </Button>
 
                 <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                     <padding>
@@ -29,22 +37,6 @@
                     <content>
                         <VBox alignment="TOP_CENTER" spacing="30.0" style="-fx-background-color: transparent;">
                             <children>
-
-                                <AnchorPane fx:id="voteability" maxHeight="1.7976931348623157E308" prefHeight="400.0" style="-fx-background-color: #293146; -fx-background-radius: 15;" VBox.vgrow="SOMETIMES">
-                                    <children>
-                                        <Label fx:id="vote" contentDisplay="CENTER" layoutX="0.0" layoutY="0.0" prefHeight="48.0" prefWidth="992.0" style="-fx-padding: 15; -fx-background-color: #dfc07d; -fx-background-radius: 15 15 0 0; -fx-text-fill: #293146" text="Voter Information:" textFill="#1a1e29" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                            <font>
-                                                <Font name="Arial Rounded MT Bold" size="18.0" />
-                                            </font>
-                                        </Label>
-                                          <Button fx:id="voteButton" layoutX="60.0" layoutY="321.0" mnemonicParsing="false" onAction="#castVote" prefHeight="45.0" prefWidth="135.0" style="-fx-background-color: #dfc07d; -fx-background-radius: 12; -fx-text-fill: #0E1525; -fx-font-weight: bold; -fx-font-size: 13px;" text="Cast Vote">  "// Method for casting a vote"
-                                             <font>
-                                                <Font name="System Bold" size="28.0" />
-                                             </font>
-                                          </Button>
-                                    </children>
-                                </AnchorPane>
-
                                 <VBox fx:id="chartsContainer" spacing="30.0" style="-fx-background-color: transparent;" />
                             </children>
                         </VBox>
