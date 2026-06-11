@@ -30,6 +30,7 @@ public class VoterController {
         this.conn = DatabaseAPI.db_connection();
     }
 
+    // Method for casting vote
     @FXML
     public void castVote(ActionEvent event) {
         String name = "";
