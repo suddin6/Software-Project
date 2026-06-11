@@ -28,11 +28,27 @@ public class VoterController {
     private int currentUser;
     @FXML private Label voterName;
     @FXML private VBox chartsContainer;
+    @FXML private Button voteButton;
 
     public void setCurrentUser(int loginID) {
         this.currentUser = loginID;
         loadDashboard();
         viewStandings();
+
+        try {
+            String query = "SELECT vote_status FROM voter WHERE login_id = ?";
+            PreparedStatement check = conn.prepareStatement(query);
+            check.setInt(1, currentUser);
+            ResultSet checkRS = check.executeQuery();
+
+            if (checkRS.next() && checkRS.getInt("vote_status") == 1) {
+                if (voteButton != null) {
+                    voteButton.setDisable(true);
+                }
+            }
+        } catch (SQLException er) {
+            er.printStackTrace();
+        }
     }
 
     @FXML
@@ -96,9 +112,7 @@ public class VoterController {
                 if (rows > 0){
                     System.out.println("You have voted for " + name);
                     votes_candidate_fk = votes_candidate_fk + 1;
-                    vote_status = vote_status + 1;
-                    if (selectedPosition == 1){
-                        Button voteButton = null;
+                    if (voteButton != null){
                         voteButton.setDisable(true);
                     }
 
