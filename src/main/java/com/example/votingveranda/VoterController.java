@@ -67,7 +67,8 @@ public class VoterController {
         int candidate_id = 0;
         int vote_status = 0;
 
-        JOptionPane.showMessageDialog(null, "Here are the current candidates,: " + selectedPosition + " has " + candidate_id + ", and " + (selectedPosition - 1) + " has " + candidate_id);
+        JOptionPane.showMessageDialog(null, "Here are the current candidates for presidency: Dora Jo, Gregory Smith, and Sara Acciacio");
+        JOptionPane.showMessageDialog(null, "Here are the following Candidates running for Senator: ");
 
         String Candidate = JOptionPane.showInputDialog(null,"Please insert name of Candidate you wish to vote for: ");
         if (Candidate == null) { return; }
