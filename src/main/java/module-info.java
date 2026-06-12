@@ -7,6 +7,8 @@ module com.example.votingveranda {
 
     opens com.example.votingveranda to javafx.fxml;
     exports com.example.votingveranda;
+//    exports com.example.votingveranda;
+//    opens com.example.votingveranda to javafx.fxml;
 
     requires org.junit.jupiter.api;
 }

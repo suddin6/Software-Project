@@ -102,4 +102,8 @@ public class LoginController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    public int getCurrentUser() {
+        return this.currentUser;
+    }
 }
