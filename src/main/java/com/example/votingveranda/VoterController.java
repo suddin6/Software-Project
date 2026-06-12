@@ -17,8 +17,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import javax.swing.*;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class VoterController {
@@ -36,16 +37,46 @@ public class VoterController {
         viewStandings();
 
         try {
-            String query = "SELECT vote_status FROM voter WHERE login_id = ?";
-            PreparedStatement check = conn.prepareStatement(query);
-            check.setInt(1, currentUser);
-            ResultSet checkRS = check.executeQuery();
+            String query = "SELECT COUNT(DISTINCT position_id) FROM candidate";
+            Statement check = conn.createStatement();
+            ResultSet checkRS = check.executeQuery(query);
+            int positionsCand = 0;
+            if (checkRS.next()) {
+                positionsCand = checkRS.getInt(1);
+            }
 
-            if (checkRS.next() && checkRS.getInt("vote_status") == 1) {
+            String voteQuery = "SELECT COUNT(DISTINCT c.position_id) FROM votes v " +
+                                "INNER JOIN candidate c ON v.candidate_id = c.candidate_id " +
+                                "WHERE v.voter_id = (SELECT voter_id FROM voter WHERE login_id = ?)";
+            PreparedStatement voteSTMT = conn.prepareStatement(voteQuery);
+            voteSTMT.setInt(1, currentUser);
+            ResultSet voteRS = voteSTMT.executeQuery();
+            int votedPositions = 0;
+
+            if (voteRS.next()) {
+                votedPositions = voteRS.getInt(1);
+            }
+
+            if (votedPositions >= positionsCand && positionsCand > 0) {
+                System.out.println("DEBUG: Button was locked because voter has already voted!");
                 if (voteButton != null) {
                     voteButton.setDisable(true);
+                    voteButton.setOpacity(0.5);
+                } else {
+                    System.out.println("DEBUG: Button should be clickable. Voted positions: " + votedPositions);
+                }
+
+                String updateFlag = "UPDATE voter SET vote_status = 1 WHERE login_id = ?";
+                PreparedStatement updatePS = conn.prepareStatement(updateFlag);
+                updatePS.setInt(1, currentUser);
+                updatePS.executeUpdate();
+            } else {
+                if (voteButton != null) {
+                    voteButton.setDisable(false);
+                    voteButton.setOpacity(1.0);
                 }
             }
+
         } catch (SQLException er) {
             er.printStackTrace();
         }
@@ -60,70 +91,176 @@ public class VoterController {
     // Method for casting vote
     @FXML
     public void castVote(ActionEvent event) {
-        String name = "";
-        String campaign = "";
-
-        int selectedPosition = 1;
-        int candidate_id = 0;
-        int vote_status = 0;
-
-        JOptionPane.showMessageDialog(null, "Here are the current candidates for presidency: Dora Jo, Gregory Smith, and Sara Acciacio");
-        JOptionPane.showMessageDialog(null, "Here are the following Candidates running for Senator: ");
-
-        String Candidate = JOptionPane.showInputDialog(null,"Please insert name of Candidate you wish to vote for: ");
-        if (Candidate == null) { return; }
-
+        System.out.println("!!! CAST VOTE BUTTON CLICK RECEIVED IN CONTROLLER !!!");
         try {
-            String query = "SELECT c.candidate_id, c.campaign, CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes, p.position_id, p.position_name, vo.vote_status " +
-                    "FROM candidate c " +
-                    "INNER JOIN login l ON c.login_id = l.login_id " +
-                    "INNER JOIN positions p ON c.position_id = p.position_id " +
-                    "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
-                    "LEFT JOIN voter vo ON vo.login_id = ? " +
-                    "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party, c.campaign, p.position_id, p.position_name, vo.vote_status";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setInt(1, currentUser);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                String dbName = rs.getString("c_name");
-
-                if (Candidate.trim().equalsIgnoreCase(dbName)) {
-                    name = dbName;
-                    String position = JOptionPane.showInputDialog(null, "Please choose if you want to vote them for senator, or for president: ");
-                    position = rs.getString("position_name");
-                    candidate_id = rs.getInt("candidate_id");
-                    vote_status = rs.getInt("vote_status");
-                    campaign = rs.getString("campaign");
-                    break;
-                }
+            String totalQuery = "SELECT COUNT(DISTINCT position_id) FROM candidate";
+            Statement totalSTMT = conn.createStatement();
+            ResultSet totalRS = totalSTMT.executeQuery(totalQuery);
+            int totalPosCand = 0;
+            if (totalRS.next()) {
+                totalPosCand = totalRS.getInt(1);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
-        if (Candidate != null && Candidate.equalsIgnoreCase(name)) {
-            String insertQuery = "INSERT INTO votes (voter_id, candidate_id) VALUES(?, ?)";
-            try {
-                PreparedStatement insertPS = conn.prepareStatement(insertQuery);
-                insertPS.setInt(1, currentUser);
-                insertPS.setInt(2, candidate_id);
-                int rows = insertPS.executeUpdate();
+            List<Integer> positionIDs = new ArrayList<>();
+            List<String> positionNames = new ArrayList<>();
 
-                if (rows > 0){
-                    System.out.println("You have voted for " + name);
-                    votes_candidate_fk = votes_candidate_fk + 1;
-                    if (voteButton != null){
-                        voteButton.setDisable(true);
+            String posQuery = "SELECT position_id, position_name FROM positions ORDER BY position_id ASC";
+            try (Statement posSTMT = conn.createStatement();
+                    ResultSet posRS = posSTMT.executeQuery(posQuery)) {
+                while (posRS.next()) {
+                        positionIDs.add(posRS.getInt("position_id"));
+                        positionNames.add(posRS.getString("position_name"));
+                    }
+            }
+
+            int posVoted = 0;
+
+            for (int i = 0; i < positionIDs.size(); i++) {
+                int positionID = positionIDs.get(i);
+                String posName = positionNames.get(i);
+
+                String checkVote = "SELECT COUNT(*) FROM votes v " +
+                                    "INNER JOIN candidate c ON v.candidate_id = c.candidate_id " +
+                                    "INNER JOIN voter vo ON v.voter_id = vo.voter_id " +
+                                    "WHERE vo.login_id = ? AND c.position_id = ?";
+
+                boolean alreadyVoted = false;
+                try (PreparedStatement checkVoteSTMT = conn.prepareStatement(checkVote)) {
+                    checkVoteSTMT.setInt(1, currentUser);
+                    checkVoteSTMT.setInt(2, positionID);
+                    try (ResultSet checkVoteRS = checkVoteSTMT.executeQuery()) {
+                        if (checkVoteRS.next() && checkVoteRS.getInt(1) > 0) {
+                            alreadyVoted = true;
+                        }
+                    }
+                }
+
+                if (alreadyVoted) {
+                    System.out.println("DEBUG: User already voted for " + posName);
+                    posVoted++;
+                    continue;
+                }
+
+                StringBuilder candList = new StringBuilder("Candidates for " + posName + ":\n\n");
+                boolean candFound = false;
+
+                String candQuery = "SELECT c.candidate_id, c.campaign, CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party " +
+                                    "FROM candidate c INNER JOIN login l on c.login_id = l.login_id " +
+                                    "WHERE c.position_id = ?";
+                try (PreparedStatement candSTMT = conn.prepareStatement(candQuery)) {
+                    candSTMT.setInt(1, positionID);
+                    try (ResultSet candRS = candSTMT.executeQuery()) {
+                        while (candRS.next()) {
+                            candFound = true;
+                            String name = candRS.getString("c_name") != null ? candRS.getString("c_name") : "Unknown Candidate";
+                            String party = candRS.getString("party") != null ? candRS.getString("party") : "Independent";
+                            String campaign = candRS.getString("campaign") != null ? candRS.getString("campaign") : "No campaign statement";
+
+                            candList.append("• ")
+                                    .append(name).append("\n")
+                                    .append("(").append(party).append(")\n")
+                                    .append("Campaign: ").append(campaign).append("\n\n");
+                        }
+                    }
+                }
+
+                if (!candFound) {
+                    System.out.println("DEBUG: Skipping " + posName + " because it has 0 registered candidates.");
+                    continue;
+                }
+
+                Alert candAlert = new Alert(Alert.AlertType.INFORMATION);
+                candAlert.setTitle(posName + " Candidates");
+                candAlert.setHeaderText("Candidates running for " + posName + ":");
+
+                TextArea textArea = new TextArea(candList.toString());
+                textArea.setWrapText(true);
+                textArea.setEditable(false);
+                candAlert.getDialogPane().setContent(textArea);
+                candAlert.showAndWait();
+
+                String selectedCand = "";
+                int matchedCandID = 0;
+                String matchName = "";
+
+                while (true) {
+                    TextInputDialog voteDialog = new TextInputDialog();
+                    voteDialog.setTitle("Cast Your Vote");
+                    voteDialog.setHeaderText("Please insert the full name of the candidate you wish to vote for as " + posName + ":");
+                    Optional<String> result = voteDialog.showAndWait();
+
+                    if (!result.isPresent()) {
+                        break;
                     }
 
-                    viewStandings();
+                    selectedCand = result.get().trim();
+
+//                    if (selectedCand == null) {
+//                        break;
+//                    }
+//
+//                    selectedCand = selectedCand.trim();
+
+                    if (selectedCand.length() > 0) {
+                        String innerQuery = "SELECT c.candidate_id, CONCAT(l.first_name, ' ', l.last_name) AS c_name " +
+                                        "FROM candidate c INNER JOIN login l ON c.login_id = l.login_id " +
+                                        "WHERE c.position_id = ? AND CONCAT(l.first_name, ' ', l.last_name) LIKE ?";
+                        try (PreparedStatement stmt = conn.prepareStatement(innerQuery)) {
+                            stmt.setInt(1, positionID);
+                            stmt.setString(2, "%" + selectedCand + "%");
+                            try (ResultSet rs = stmt.executeQuery()) {
+                                if (rs.next()) {
+                                    matchedCandID = rs.getInt("candidate_id");
+                                    matchName = rs.getString("c_name");
+                                    break;
+                                } else {
+                                    Alert errorAlert = new Alert(Alert.AlertType.ERROR, "Candidate not found. Please try again");
+                                    errorAlert.showAndWait();
+                                }
+                            }
+                        }
+                    } else {
+                        Alert warnAlert = new Alert(Alert.AlertType.ERROR, "You cannot leave the input blank.");
+                        warnAlert.showAndWait();
+                    }
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+
+                if (matchedCandID > 0) {
+                    String insertQuery = "INSERT INTO votes (voter_id, candidate_id) VALUES((SELECT voter_id FROM voter WHERE login_id = ?), ?)";
+                    try (PreparedStatement insertPS = conn.prepareStatement(insertQuery)) {
+                        insertPS.setInt(1, currentUser);
+                        insertPS.setInt(2, matchedCandID);
+                        int rows = insertPS.executeUpdate();
+
+                        if (rows > 0) {
+                            System.out.println("You have voted for " + matchName + " as " + posName);
+                            votes_candidate_fk = votes_candidate_fk + 1;
+                            posVoted++;
+                        }
+                    }
+                }
             }
-        } else {
-            System.out.println("Invalid candidate, please try again.");
+
+            if (posVoted >= totalPosCand && totalPosCand > 0) {
+                try {
+                    String updateQuery = "UPDATE voter SET vote_status = 1 WHERE login_id = ?";
+                    PreparedStatement updatePS = conn.prepareStatement(updateQuery);
+                    updatePS.setInt(1, currentUser);
+                    updatePS.executeUpdate();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+
+                if (voteButton != null){
+                    voteButton.setDisable(true);
+                    voteButton.setOpacity(0.5);
+                }
+            }
+
+            viewStandings();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -135,7 +272,7 @@ public class VoterController {
 
         try {
             String query = "SELECT l.first_name, l.last_name, v.vote_status FROM voter v " +
-                    "INNER JOIN login l ON v.login_id = v.login_id " +
+                    "INNER JOIN login l ON v.login_id = l.login_id " +
                     "WHERE l.login_id = " + currentUser;
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -155,124 +292,127 @@ public class VoterController {
 
     // method to view standings of candidates relative to position
     private void viewStandings() {
-        Platform.runLater(() -> {
-            chartsContainer.getChildren().clear();
+        if (conn == null) {
+            return;
+        }
 
-            if (conn == null) {
-                return;
-            }
+        Platform.runLater(() -> chartsContainer.getChildren().clear());
 
-            int positionID = -1;
-            String positionName = "";
+        int positionID = -1;
+        String positionName = "";
 
-            try {
-                String getPosQuery = "SELECT position_id, position_name FROM positions";
-                Statement posSTMT = conn.createStatement();
-                ResultSet posRS = posSTMT.executeQuery(getPosQuery);
+        try {
+            String getPosQuery = "SELECT position_id, position_name FROM positions";
+            Statement posSTMT = conn.createStatement();
+            ResultSet posRS = posSTMT.executeQuery(getPosQuery);
 
-                while (posRS.next()) {
-                    positionID = posRS.getInt("position_id");
-                    positionName = posRS.getString("position_name");
+            while (posRS.next()) {
+                positionID = posRS.getInt("position_id");
+                positionName = posRS.getString("position_name");
 
-                    String query = "SELECT CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes " +
-                            "FROM candidate c " +
-                            "INNER JOIN login l ON c.login_id = l.login_id " +
-                            "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
-                            "WHERE c.position_id = " + positionID + " " +
-                            "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party";
+                String query = "SELECT CONCAT(l.first_name, ' ', l.last_name) AS c_name, c.party, COUNT(v.vote_id) AS total_votes " +
+                        "FROM candidate c " +
+                        "INNER JOIN login l ON c.login_id = l.login_id " +
+                        "LEFT JOIN votes v ON c.candidate_id = v.candidate_id " +
+                        "WHERE c.position_id = " + positionID + " " +
+                        "GROUP BY c.candidate_id, l.first_name, l.last_name, c.party";
 
-                    Statement stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery(query);
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
 
-                    XYChart.Series<String, Number> demSeries = new XYChart.Series<>();
-                    demSeries.setName("Democratic Party");
+                XYChart.Series<String, Number> demSeries = new XYChart.Series<>();
+                demSeries.setName("Democratic Party");
 
-                    XYChart.Series<String, Number> repSeries = new XYChart.Series<>();
-                    repSeries.setName("Republican Party");
+                XYChart.Series<String, Number> repSeries = new XYChart.Series<>();
+                repSeries.setName("Republican Party");
 
-                    XYChart.Series<String, Number> greenSeries = new XYChart.Series<>();
-                    greenSeries.setName("Green Party");
+                XYChart.Series<String, Number> greenSeries = new XYChart.Series<>();
+                greenSeries.setName("Green Party");
 
-                    boolean dataPresent = false;
+                boolean dataPresent = false;
 
-                    while (rs.next()) {
-                        dataPresent = true;
+                while (rs.next()) {
+                    dataPresent = true;
 
-                        String name = rs.getString("c_name");
-                        String party = rs.getString("party");
-                        int votes = rs.getInt("total_votes");
+                    String name = rs.getString("c_name");
+                    String party = rs.getString("party");
+                    int votes = rs.getInt("total_votes");
 
-                        if ("Democrat".equalsIgnoreCase(party)) {
-                            demSeries.getData().add(new XYChart.Data<>(name, votes));
-                        } else if ("Republican".equalsIgnoreCase(party)) {
-                            repSeries.getData().add(new XYChart.Data<>(name, votes));
-                        } else if ("Green Party".equalsIgnoreCase(party)) {
-                            greenSeries.getData().add(new XYChart.Data<>(name, votes));
-                        }
+                    if ("Democrat".equalsIgnoreCase(party)) {
+                        demSeries.getData().add(new XYChart.Data<>(name, votes));
+                    } else if ("Republican".equalsIgnoreCase(party)) {
+                        repSeries.getData().add(new XYChart.Data<>(name, votes));
+                    } else if ("Green Party".equalsIgnoreCase(party)) {
+                        greenSeries.getData().add(new XYChart.Data<>(name, votes));
                     }
+                }
 
-                    if (!dataPresent) {
-                        continue;
-                    }
+                if (!dataPresent) {
+                    continue;
+                }
 
-                    Label sectionTitle = new Label(positionName + " Standings");
-                    sectionTitle.setMaxWidth(Double.MAX_VALUE);
-                    sectionTitle.setStyle("-fx-alignment: CENTER; " +
-                            "-fx-text-fill: #dfc07d; " +
-                            "-fx-font-family: 'Arial Rounded MT Bold'; " +
-                            "-fx-font-size: 20px; " +
-                            "-fx-padding: 20 0 10 0;");
-                    chartsContainer.getChildren().add(sectionTitle);
+                Label sectionTitle = new Label(positionName + " Standings");
+                sectionTitle.setMaxWidth(Double.MAX_VALUE);
+                sectionTitle.setStyle("-fx-alignment: CENTER; " +
+                        "-fx-text-fill: #dfc07d; " +
+                        "-fx-font-family: 'Arial Rounded MT Bold'; " +
+                        "-fx-font-size: 20px; " +
+                        "-fx-padding: 20 0 10 0;");
+                chartsContainer.getChildren().add(sectionTitle);
 
-                    CategoryAxis xAxis = new CategoryAxis();
-                    NumberAxis yAxis = new NumberAxis();
-                    yAxis.setTickLabelFill(Color.web("#dfc07d"));
+                CategoryAxis xAxis = new CategoryAxis();
+                NumberAxis yAxis = new NumberAxis();
+                yAxis.setTickLabelFill(Color.web("#dfc07d"));
 
-                    StackedBarChart<String, Number> chart = new StackedBarChart<>(xAxis, yAxis);
-                    chart.setHorizontalGridLinesVisible(true);
-                    chart.setVerticalGridLinesVisible(true);
+                StackedBarChart<String, Number> chart = new StackedBarChart<>(xAxis, yAxis);
+                chart.setHorizontalGridLinesVisible(true);
+                chart.setVerticalGridLinesVisible(true);
 
-                    chart.lookup(".chart-plot-background").setStyle("-fx-background-color: #f4f4f4;");
+                chart.lookup(".chart-plot-background").setStyle("-fx-background-color: #f4f4f4;");
 
-                    Node lines = chart.lookup(".chart-horizontal-grid-lines");
-                    if (lines != null) {
-                        lines.setStyle("-fx-stroke: #e0e0e0; -fx-stroke-dash-array: 2 2;");
-                    }
+                Node lines = chart.lookup(".chart-horizontal-grid-lines");
+                if (lines != null) {
+                    lines.setStyle("-fx-stroke: #e0e0e0; -fx-stroke-dash-array: 2 2;");
+                }
 
-                    Node Vlines = chart.lookup(".chart-vertical-grid-lines");
-                    if (Vlines != null) {
-                        Vlines.setStyle("-fx-stroke: #e0e0e0; -fx-stroke-dash-array: 2 2;");
-                    }
+                Node Vlines = chart.lookup(".chart-vertical-grid-lines");
+                if (Vlines != null) {
+                    Vlines.setStyle("-fx-stroke: #e0e0e0; -fx-stroke-dash-array: 2 2;");
+                }
 
-                    chart.setPrefHeight(320);
-                    chart.setAnimated(false);
-                    chart.setCategoryGap(0);
-                    chart.setStyle(
-                            "-fx-background-color: transparent; "
-                                    + "-fx-font-size: 13px; "
-                                    + "-fx-text-fill: #dfc07d; "
-                                    + "-fx-text-background-color: #dfc07d; "
-                                    + "CHART_COLOR_1: #1a73e8; "
-                                    + "CHART_COLOR_2: #ea4335; "
-                                    + "CHART_COLOR_3: #34a853;"
-                    );
+                chart.setPrefHeight(320);
+                chart.setAnimated(false);
+                chart.setCategoryGap(0);
+                chart.setStyle(
+                        "-fx-background-color: transparent; "
+                                + "-fx-font-size: 13px; "
+                                + "-fx-text-fill: #dfc07d; "
+                                + "-fx-text-background-color: #dfc07d; "
+                                + "CHART_COLOR_1: #1a73e8; "
+                                + "CHART_COLOR_2: #ea4335; "
+                                + "CHART_COLOR_3: #34a853;"
+                );
 
-                    xAxis.setTickLabelFill(Color.web("#dfc07d"));
-                    yAxis.setTickLabelFill(Color.web("#dfc07d"));
+                xAxis.setTickLabelFill(Color.web("#dfc07d"));
+                yAxis.setTickLabelFill(Color.web("#dfc07d"));
 
-                    if (demSeries.getData().size() > 0) {
-                        chart.getData().add(demSeries);
-                    }
+                if (demSeries.getData().size() > 0) {
+                    chart.getData().add(demSeries);
+                }
 
-                    if (repSeries.getData().size() > 0) {
-                        chart.getData().add(repSeries);
-                    }
+                if (repSeries.getData().size() > 0) {
+                    chart.getData().add(repSeries);
+                }
 
-                    if (greenSeries.getData().size() > 0) {
-                        chart.getData().add(greenSeries);
-                    }
+                if (greenSeries.getData().size() > 0) {
+                    chart.getData().add(greenSeries);
+                }
 
-                    chartsContainer.getChildren().add(chart);
+                final Label finalTitle = sectionTitle;
+                final StackedBarChart<String,Number> finalChart = chart;
+
+                Platform.runLater(() -> {
+                    chartsContainer.getChildren().addAll(finalTitle, finalChart);
 
                     for (XYChart.Series<String, Number> series : chart.getData()) {
                         String barColor = "-fx-bar-fill: #dfc07d";
@@ -309,13 +449,13 @@ public class VoterController {
                             label.setStyle("-fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-text-fill: #dfc07d;");
                         }
                     }
-                }
-            } catch (Exception error) {
-                System.out.println("Error finding position: " + error.getMessage());
-                error.printStackTrace();
-                return;
+                });
             }
-        });
+        } catch (Exception error) {
+            System.out.println("Error finding position: " + error.getMessage());
+            error.printStackTrace();
+            return;
+        }
     }
 
     @FXML

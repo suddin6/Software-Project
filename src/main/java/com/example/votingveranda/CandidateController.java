@@ -210,11 +210,6 @@ public class CandidateController {
         }
     }
 
-    @FXML
-    public void handleRefresh(ActionEvent event) {
-        viewStandings();
-    }
-
     // method used for campaign changes
     @FXML
     public void makeChanges(ActionEvent event) {
